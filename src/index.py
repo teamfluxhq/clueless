@@ -26,12 +26,14 @@ def handle_client_connect(data):
 
 @socketio.on('message')
 def handle_message(data):
+
+    global globalGameState
     # Parse the given action in json, the given action is in
     # format {action: "SOME_ACTION", payload: { key: value }}
     given_action = json.loads(data)
 
+    # TODO: Clean this up
     if given_action["action"] == "JOIN_GAME":
-        global globalGameState
         playerName = given_action["payload"]["playerName"]
         if not playerName in globalGameState["players"]:
             globalGameState["players"].append(playerName)
@@ -51,7 +53,6 @@ def handle_message(data):
             responseStr = json.dumps(response)
             send(responseStr)
     elif given_action["action"] == "RESET_GAME":
-        global globalGameState
         globalGameState = {
             "players": []
         }
@@ -63,7 +64,6 @@ def handle_message(data):
         responseStr = json.dumps(response)
         emit('message', responseStr, broadcast=True)
     else:
-        global globalGameState
         response = {
             "responseToken": "UNIDENTIFIED_ACTION",
             "payload": "Unidentified action",

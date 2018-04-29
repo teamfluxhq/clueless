@@ -3,9 +3,27 @@ let GLOBAL_CLIENT_STATE = {
     connectedPlayerName: "",
 }
 let socket = io.connect('http://' + document.domain + ':' + location.port);
+
+// Possible game actions
 let actions = {
-    CLIENT_CONNECTION: 'CLIENT_CONNECTION'
+    CLIENT_CONNECTION: 'CLIENT_CONNECTION',
+    JOIN_GAME: 'JOIN_GAME',
+    RESET_GAME: 'RESET_GAME',
 }
+
+// Possible responses
+let responses = {
+    PLAYER_JOINED_GAME: 'PLAYER_JOINED_GAME',
+    PLAYER_ALREADY_JOINED: 'PLAYER_ALREADY_JOINED',
+    CLEARED_GAME_STATE: 'CLEARED_GAME_STATE',
+}
+
+// DOM elements
+let roomDiv = document.getElementById("room");
+let playerNamePrompt = document.getElementById("playerNamePrompt");
+let playerNamePromptErr = document.getElementById("playerNamePromptErr");
+
+
 socket.on('connect', () => {
     // Connects to the websocket server
     socket.emit(actions.CLIENT_CONNECTION, {data: 'Client connected'});
@@ -20,7 +38,7 @@ function joinGame(event) {
     // Check if the playerName is not found
     if (playerName !== "") {
         let sendObjToServer = {
-            action: "JOIN_GAME",
+            action: actions.JOIN_GAME,
             payload: {
                 playerName: playerName,
             }
@@ -28,6 +46,7 @@ function joinGame(event) {
         let playerNamePrompt = document.getElementById("playerNamePrompt");
         playerNamePrompt.hidden = true;
         playerNamePromptErr = "";
+        // set the connected player name
         GLOBAL_CLIENT_STATE.connectedPlayerName = playerName;
 
         socket.send(JSON.stringify(sendObjToServer))
@@ -38,7 +57,7 @@ function joinGame(event) {
 
 function resetGame() {
     let sendObjToServer = {
-        action: "RESET_GAME",
+        action: actions.RESET_GAME,
     }
     socket.send(JSON.stringify(sendObjToServer))
 }
@@ -47,12 +66,10 @@ function resetGame() {
 socket.on('message', (data) => {
     let parsedMessage = JSON.parse(data);
     let gameState = parsedMessage.gameState;
-    let roomDiv = document.getElementById("room");
-    let playerNamePrompt = document.getElementById("playerNamePrompt");
-    let playerNamePromptErr = document.getElementById("playerNamePromptErr");
-
     switch (parsedMessage.responseToken) {
-        case "PLAYER_JOINED_GAME":
+        case responses.PLAYER_JOINED_GAME:
+            roomDiv = document.getElementById("room");
+            
             roomDiv.innerHTML = "";
             let playerNamesRendered = gameState.players.map((name) => {
                 return "<li>"+name+"</li>";
@@ -64,22 +81,22 @@ socket.on('message', (data) => {
             }
             roomDiv.innerHTML += "</ul>";
             break;
-        case "PLAYER_ALREADY_JOINED":
+        case responses.PLAYER_ALREADY_JOINED:
             playerNamePrompt = document.getElementById("playerNamePrompt");
+            playerNamePromptErr = document.getElementById("playerNamePromptErr");
 
             playerNamePrompt.hidden = false;
-            playerNamePromptErr = document.getElementById("playerNamePromptErr");
             playerNamePromptErr.innerHTML = "Player with that name has already joined the game";
             break;
-        case "CLEARED_GAME_STATE":
+        case responses.CLEARED_GAME_STATE:
             location.reload();
         default:
             console.log(parsedMessage);
     }
 });
 
-let joinGamePrompt = document.getElementById("playerNamePrompt");
-joinGamePrompt.onsubmit = (event) => {
+// Form submit actions for the player name prompt
+playerNamePrompt.onsubmit = (event) => {
     event.preventDefault();
     joinGame();
 }
