@@ -19,9 +19,6 @@ This is for the JHU Whiting School of Engineering Computer Science Software Engi
 pipenv install
 pipenv shell
 ```
-
-- Export the environment variable for the flask app, this is the entrypoint for the application:
-
 - Then run python src/index.py
 
 - Open http://localhost:5000 in the browser
