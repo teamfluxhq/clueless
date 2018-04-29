@@ -11,9 +11,12 @@ This is for the JHU Whiting School of Engineering Computer Science Software Engi
 
 ## How to run
 
-- After you have everything installed
+```
+git clone https://github.com/teamfluxhq/clueless.git
+cd clueless
+```
 
-- Make sure you're in the top level directory and do:
+- After you have everything installed make sure you're in the top level of the directory and do:
 
 ```
 pipenv install
