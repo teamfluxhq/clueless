@@ -24,4 +24,4 @@ pipenv shell
 
 - Then run python src/index.py
 
-- Open localhost:5000 in the browser
+- Open http://localhost:5000 in the browser
