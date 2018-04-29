@@ -25,3 +25,5 @@ pipenv shell
 - Then run python src/index.py
 
 - Open http://localhost:5000 in the browser
+
+You can exit out of the pipenv shell by simply typing `exit` into the terminal.
