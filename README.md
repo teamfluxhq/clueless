@@ -15,6 +15,7 @@
 - Make sure you're in the top level directory and do:
 
 ```
+pipenv install
 pipenv shell
 ```
 
