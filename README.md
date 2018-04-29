@@ -1,5 +1,6 @@
 # Team Flux Working App
 
+This is for the JHU Whiting School of Engineering Computer Science Software Engineering course 
 ## Dependencies
 
 -  Python 2.7.10 and Pip
