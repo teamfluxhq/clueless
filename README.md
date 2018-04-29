@@ -42,7 +42,7 @@ git branch yourname
 git checkout yourname
 ```
 
-- If you type `git branch` you can see all of the current branches, the one with the asterisk on it will be the branch you're current only.
+- If you type `git branch` you can see all of the current branches, the one with the asterisk on it will be the branch you're current on.
 
 - After you make changes, you can commit those changes to your branch and push them remotely by doing:
 
