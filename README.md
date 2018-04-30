@@ -27,3 +27,29 @@ pipenv shell
 - Open http://localhost:5000 in the browser
 
 You can exit out of the pipenv shell by simply typing `exit` into the terminal.
+
+## How to update the code
+
+- If you want to make changes to the code, it's recommended that you make your own branch, to create your own branch example branch with name `yourname` type:
+
+```
+git branch yourname
+```
+
+- Then you want to checkout the branch so type:
+
+```
+git checkout yourname
+```
+
+- If you type `git branch` you can see all of the current branches, the one with the asterisk on it will be the branch you're current on.
+
+- After you make changes, you can commit those changes to your branch and push them remotely by doing:
+
+- `git add .`
+
+- `git commit -m "Descriptive message regarding changes"`
+
+- `git push origin yourname`
+
+Now if you go to your browser and navigate to the repo you should be able to see the branch there, if you want to merge your branch into `master` then you can create a pull request from the website. The pull request will be reviewed before being merged into the `master` branch.
