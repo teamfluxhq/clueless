@@ -22,7 +22,8 @@ let responses = {
     PLAYER_ALREADY_JOINED: 'PLAYER_ALREADY_JOINED',
     CLEARED_GAME_STATE: 'CLEARED_GAME_STATE',
     MAXIMUM_PLAYER_REACHED: 'MAXIMUM_PLAYER_REACHED',
-    PLAYER_STATE: 'PLAYER_STATE'
+    PLAYER_STATE: 'PLAYER_STATE',
+    GAME_STARTED_STATE: 'GAME_STARTED_STATE'
 }
 
 // DOM elements
@@ -110,8 +111,8 @@ socket.on('message', (data) => {
     let gameState = parsedMessage.gameState;
 
     statusDiv = document.getElementById("status");
-    statusDiv.innerHTML = "Current turn number: " + gameState.turn + " Current player's turn: " + gameState.current_player;
-
+    statusDiv.innerHTML = "In player's " + GLOBAL_CLIENT_STATE.connectedPlayerName + "client. Current turn number: " + gameState.turn + " Current player's turn: " + gameState.current_player;
+    console.log(parsedMessage.responseToken)
     switch (parsedMessage.responseToken) {
         case responses.PLAYER_JOINED_GAME:
             roomDiv = document.getElementById("room");
@@ -165,6 +166,15 @@ socket.on('message', (data) => {
             }
             break;
         case responses.PLAYER_STATE:
+            document.getElementById('suggestButton').style.display = "none";
+            document.getElementById('accuseButton').style.display = "none";
+            document.getElementById('endTurnButton').style.display = "none";
+            // document.getElementById('resetGameButton').style.display = "none";
+            if (GLOBAL_CLIENT_STATE.connectedPlayerName === gameState.current_player) {
+                document.getElementById('suggestButton').style.display = "block";
+                document.getElementById('accuseButton').style.display = "block";
+                document.getElementById('endTurnButton').style.display = "block";
+            }        
             break;
         default:
             console.log(parsedMessage);

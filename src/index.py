@@ -86,17 +86,19 @@ def handle_message(data):
             "gameState": globalGameState
         }
         responseStr = json.dumps(response)
-        emit(responseStr)
+        print(responseStr)
+        emit('message', responseStr, broadcast=True)
     elif given_action["action"] == "END_TURN":
         globalGameState["turn"] += 1
-        globalGameState["current_player"] = globalGameState["players"][globalGameState["turn"] % 6]
+        globalGameState["current_player"] = globalGameState["players"][globalGameState["turn"] % len(globalGameState["players"])]
         response = {
             "responseToken": "PLAYER_STATE",
             "payload": "Player State",
             "gameState": globalGameState
         }
         responseStr = json.dumps(response)
-        emit(responseStr)        
+        print(responseStr)
+        emit('message', responseStr, broadcast=True)
     else:
         response = {
             "responseToken": "UNIDENTIFIED_ACTION",
