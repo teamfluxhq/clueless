@@ -18,6 +18,25 @@ globalGameState = {
     "current_player": ""
 }
 
+weapons = ["candlestick", "revolver",
+           "rope", "wrench",
+           "lead_pipe", "knife"]
+
+rooms = ["study", "library", "conservatory",
+         "hall", "kitchen", "ballroom",
+         "dining_room", "lounge", "billard_room"]
+
+suspects = ["white", "peacock",
+              "scarlet", "mustard",
+              "green", "plum"]
+
+solution = {
+    "weapon": "",
+    "room": "",
+    "suspect": ""
+}
+
+
 @app.route('/')
 def game_view():
     return render_template('index.html', title="Home")
@@ -67,7 +86,9 @@ def handle_message(data):
             send(responseStr)
     elif given_action["action"] == "RESET_GAME":
         globalGameState = {
-            "players": []
+            "players": [],
+            "turn": 0,
+            "current_player": ""
         }
         response = {
                 "responseToken": "CLEARED_GAME_STATE",
@@ -76,17 +97,18 @@ def handle_message(data):
         }
         responseStr = json.dumps(response)
         emit('message', responseStr, broadcast=True)
+
     elif given_action["action"] == "START_GAME":
-        print('Received startgame message')
+        createSolution()
+        print(solution)
+
         globalGameState["current_player"] = globalGameState["players"][0]
-        print(globalGameState["current_player"])
         response = {
             "responseToken": "GAME_STARTED_STATE",
             "payload": "Game Started",
             "gameState": globalGameState
         }
         responseStr = json.dumps(response)
-        print(responseStr)
         emit('message', responseStr, broadcast=True)
     elif given_action["action"] == "END_TURN":
         globalGameState["turn"] += 1
@@ -97,7 +119,6 @@ def handle_message(data):
             "gameState": globalGameState
         }
         responseStr = json.dumps(response)
-        print(responseStr)
         emit('message', responseStr, broadcast=True)
     else:
         response = {
@@ -109,8 +130,11 @@ def handle_message(data):
         send(responseStr)
 
 # Randomly creates the answer envelop
-def createEnvelop():
-    pass
+def createSolution():
+    global solution
+    solution["weapon"] = sample(weapons, 1)
+    solution["room"] = sample(rooms, 1)
+    solution["suspect"] = sample(suspects, 1)
 
 # Randomly assign cards to players
 def assignCards():

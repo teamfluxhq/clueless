@@ -1,6 +1,11 @@
 
 let GLOBAL_CLIENT_STATE = {
     connectedPlayerName: "",
+    // location
+    // values for the cards
+    weapon: "",
+    room: "",
+    character: ""
 }
 let socket = io.connect('http://' + document.domain + ':' + location.port);
 
@@ -111,7 +116,7 @@ socket.on('message', (data) => {
     let gameState = parsedMessage.gameState;
 
     statusDiv = document.getElementById("status");
-    statusDiv.innerHTML = "In player's " + GLOBAL_CLIENT_STATE.connectedPlayerName + "client. Current turn number: " + gameState.turn + " Current player's turn: " + gameState.current_player;
+    statusDiv.innerHTML = "In " + GLOBAL_CLIENT_STATE.connectedPlayerName + "'s client. Current turn number: " + gameState.turn + " Current player's turn: " + gameState.current_player;
     console.log(parsedMessage.responseToken)
     switch (parsedMessage.responseToken) {
         case responses.PLAYER_JOINED_GAME:
