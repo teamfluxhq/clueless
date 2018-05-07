@@ -22,8 +22,14 @@
     <div id="room">No players currently</div>
 
     <br />
-    <button onclick="resetGame()">Reset Game</button>
-
+    <button id="startGameButton" onclick="startGame()" style="display:none">Start Game</button>
+    <button id="suggestButton" onclick="suggest()" style="display:none">Make Suggestion</button>
+    <button id="disproveButton" onclick="disprove()" style="display:none">Disprove</button>
+    <button id="accuseButton" onclick="accuse()" style="display:none">Make Accusation</button>
+    <button id="endTurnButton" onclick="endTurn()" style="display:none">End Turn</button>
+    <button id="resetGameButton" onclick="resetGame()"  style="display:block">Reset Game</button>
+    <br />
+    <div id="status">Current Status</div>
     <script type="text/javascript" src="{{ url_for('static', filename='client.js') }}"></script>
 
     
