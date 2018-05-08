@@ -5,7 +5,8 @@ let GLOBAL_CLIENT_STATE = {
     // values for the cards
     weapon: "",
     room: "",
-    character: ""
+    character: "",
+    cards: []
 }
 let socket = io.connect('http://' + document.domain + ':' + location.port);
 

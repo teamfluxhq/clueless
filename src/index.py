@@ -6,8 +6,7 @@
 from flask import Flask, render_template
 from flask_socketio import SocketIO, send, emit
 import json
-from random
-import sample
+from random import sample
 app = Flask(__name__)
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
@@ -17,7 +16,8 @@ socketio = SocketIO(app)
 globalGameState = {
     "players": [],
     "turn": 0,
-    "current_player": ""
+    "current_player": "",
+    "playerCards": []
 }
 
 weapons = ["candlestick", "revolver",
@@ -31,6 +31,8 @@ rooms = ["study", "library", "conservatory",
 suspects = ["white", "peacock",
               "scarlet", "mustard",
               "green", "plum"]
+
+remainingCards = []
 
 solution = {
     "weapon": "",
@@ -103,6 +105,7 @@ def handle_message(data):
     elif given_action["action"] == "START_GAME":
         createSolution()
         print(solution)
+	assignCards()
 
         globalGameState["current_player"] = globalGameState["players"][0]
         response = {
@@ -140,7 +143,35 @@ def createSolution():
 
 # Randomly assign cards to players
 def assignCards():
-    pass
+    global remainingCards
+    global globalGameState
+    #global weapons
+    #global rooms
+    #global suspects
+
+    print(remainingCards)
+    remainingCards += [i for i in weapons if i != solution["weapon"]]
+    #weapons.extend(rooms)
+    print(remainingCards)
+    remainingCards += [i for i in weapons if i != solution["rooms"]]
+    #weapons.extend(suspects)
+    print(remainingCards)
+    remainingCards += [i for i in weapons if i != solution["suspects"]]
+
+    remainder = len(remainingCards) % len(globalGameState["players"])
+    equalDistribution = len(remainingCards) / len(globalGameState["players"])
+    remainingCards = sample(remainingCards, len(remainingCards))
+    #solution["weapon"] = sample(weapons, 1)
+    for i in xrange (globalGameState["players"]):
+         globalGameState["player_cards"].append(remainingCards[i * equalDistribution:(i+1) * equalDistribution])
+
+    if remainder != 0 : 
+         for i in xrange (remainder) :
+	      globalGameState["player_cards"][i].append(remainingCards[len(remainingCards) - i - 1])
+	 
+    print globalGameState
+#)
+    
 
 
 if __name__ == '__main__':
