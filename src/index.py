@@ -6,7 +6,7 @@
 from flask import Flask, render_template
 from flask_socketio import SocketIO, send, emit
 import json
-from random import sample
+import random
 app = Flask(__name__)
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
@@ -17,7 +17,7 @@ globalGameState = {
     "players": [],
     "turn": 0,
     "current_player": "",
-    "playerCards": []
+    "player_cards": {}
 }
 
 weapons = ["candlestick", "revolver",
@@ -31,8 +31,6 @@ rooms = ["study", "library", "conservatory",
 suspects = ["white", "peacock",
               "scarlet", "mustard",
               "green", "plum"]
-
-remainingCards = []
 
 solution = {
     "weapon": "",
@@ -103,9 +101,11 @@ def handle_message(data):
         emit('message', responseStr, broadcast=True)
 
     elif given_action["action"] == "START_GAME":
-        createSolution()
-        print(solution)
-	assignCards()
+        # createSolution()
+        # print(solution)
+        # assignCards()
+        initialize_card_state()
+        print(globalGameState)
 
         globalGameState["current_player"] = globalGameState["players"][0]
         response = {
@@ -115,6 +115,7 @@ def handle_message(data):
         }
         responseStr = json.dumps(response)
         emit('message', responseStr, broadcast=True)
+        
     elif given_action["action"] == "END_TURN":
         globalGameState["turn"] += 1
         globalGameState["current_player"] = globalGameState["players"][globalGameState["turn"] % len(globalGameState["players"])]
@@ -135,43 +136,74 @@ def handle_message(data):
         send(responseStr)
 
 # Randomly creates the answer envelop
-def createSolution():
-    global solution
-    solution["weapon"] = sample(weapons, 1)
-    solution["room"] = sample(rooms, 1)
-    solution["suspect"] = sample(suspects, 1)
+# def createSolution():
+#     global solution
+#     solution["weapon"] = sample(weapons, 1)
+#     solution["room"] = sample(rooms, 1)
+#     solution["suspect"] = sample(suspects, 1)
 
 # Randomly assign cards to players
-def assignCards():
-    global remainingCards
+
+def initialize_card_state():
+    global solution
+    global weapons
+    global rooms
+    global suspects
     global globalGameState
-    #global weapons
-    #global rooms
-    #global suspects
 
-    print(remainingCards)
-    remainingCards += [i for i in weapons if i != solution["weapon"]]
-    #weapons.extend(rooms)
-    print(remainingCards)
-    remainingCards += [i for i in weapons if i != solution["rooms"]]
-    #weapons.extend(suspects)
-    print(remainingCards)
-    remainingCards += [i for i in weapons if i != solution["suspects"]]
+    random.shuffle(weapons)
+    random.shuffle(rooms)
+    random.shuffle(suspects)
 
-    remainder = len(remainingCards) % len(globalGameState["players"])
-    equalDistribution = len(remainingCards) / len(globalGameState["players"])
-    remainingCards = sample(remainingCards, len(remainingCards))
-    #solution["weapon"] = sample(weapons, 1)
-    for i in xrange (globalGameState["players"]):
-         globalGameState["player_cards"].append(remainingCards[i * equalDistribution:(i+1) * equalDistribution])
+    solution["weapon"] = weapons[0]
+    solution["room"] = rooms[0]
+    solution["suspect"] = suspects[0]
 
-    if remainder != 0 : 
-         for i in xrange (remainder) :
-	      globalGameState["player_cards"][i].append(remainingCards[len(remainingCards) - i - 1])
-	 
-    print globalGameState
-#)
-    
+    combined_cards = weapons[1:len(weapons)] + rooms[1:len(rooms)] + suspects[1:len(suspects)]
+
+    random.shuffle(combined_cards)
+
+    r = len(combined_cards) % len(globalGameState["players"])
+    q = len(combined_cards) / len(globalGameState["players"])
+    start = 0
+    stop = q
+    for player in globalGameState["players"]:
+        if r > 0:
+            stop += 1
+            r -= 1
+        globalGameState["player_cards"][player] = combined_cards[start:stop]
+        start = stop
+        stop += q
+
+
+
+
+
+# def assignCards():
+#     global globalGameState
+
+
+#     print(remainingCards)
+#     remainingCards += [i for i in weapons if i != solution["weapon"]]
+#     #weapons.extend(rooms)
+#     print(remainingCards)
+#     remainingCards += [i for i in weapons if i != solution["rooms"]]
+#     #weapons.extend(suspects)
+#     print(remainingCards)
+#     remainingCards += [i for i in weapons if i != solution["suspects"]]
+
+#     remainder = len(remainingCards) % len(globalGameState["players"])
+#     equalDistribution = len(remainingCards) / len(globalGameState["players"])
+#     remainingCards = sample(remainingCards, len(remainingCards))
+
+#     for i in xrange (globalGameState["players"]):
+#          globalGameState["player_cards"].append(remainingCards[i * equalDistribution:(i + 1) * equalDistribution])
+
+#     if remainder != 0: 
+#         for i in xrange(remainder):
+#             globalGameState["player_cards"][i].append(remainingCards[len(remainingCards) - i - 1])
+#     print globalGameState
+
 
 
 if __name__ == '__main__':

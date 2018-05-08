@@ -118,7 +118,20 @@ socket.on('message', (data) => {
 
     statusDiv = document.getElementById("status");
     statusDiv.innerHTML = "In " + GLOBAL_CLIENT_STATE.connectedPlayerName + "'s client. Current turn number: " + gameState.turn + " Current player's turn: " + gameState.current_player;
-    console.log(parsedMessage.responseToken)
+    console.log(parsedMessage.responseToken);
+    console.log(gameState.player_cards);
+    if (typeof gameState.player_cards !== 'undefined') {
+        console.log(gameState.player_cards[GLOBAL_CLIENT_STATE.connectedPlayerName]);
+
+        cardsDiv = document.getElementById("cards");
+        cardsDiv.innerHTML = "Current cards: "
+
+        for (let i = 0; i < gameState.player_cards[GLOBAL_CLIENT_STATE.connectedPlayerName].length; i++)
+        {
+            cardsDiv.innerHTML += gameState.player_cards[GLOBAL_CLIENT_STATE.connectedPlayerName][i] + " ";
+        }
+    }
+
     switch (parsedMessage.responseToken) {
         case responses.PLAYER_JOINED_GAME:
             roomDiv = document.getElementById("room");
