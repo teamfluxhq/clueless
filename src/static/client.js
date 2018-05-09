@@ -126,6 +126,7 @@ socket.on('message', (data) => {
     statusDiv.innerHTML = "In " + GLOBAL_CLIENT_STATE.connectedPlayerName + "'s client. Current turn number: " + gameState.turn + " Current player's turn: " + gameState.current_player;
     console.log(parsedMessage.responseToken);
     console.log(gameState.player_cards);
+    console.log(connectedPlayerName);
     if (checkIfExists(gameState.player_cards, connectedPlayerName)) {
 
         cardsDiv = document.getElementById("cards");

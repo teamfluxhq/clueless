@@ -151,6 +151,8 @@ def initialize_card_state():
     global suspects
     global globalGameState
 
+    globalGameState["player_cards"] = dict()
+
     random.shuffle(weapons)
     random.shuffle(rooms)
     random.shuffle(suspects)
