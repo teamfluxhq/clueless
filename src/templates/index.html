@@ -5,8 +5,68 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>{{ title }}</title>
+    <link href="https://fonts.googleapis.com/css?family=Dosis|Skranji" rel="stylesheet">
+    <link rel="stylesheet" href="//stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="//stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}" />
+    <script type="text/javascript" src="//stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+    
+    <!-- Minified Socket IO library from content delivery network -->
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+
 </head>
 <body>
+    <div class="game">
+        <div class="headerview">
+            <h1 class="header"><i class="fa fa-question-circle"></i> Clueless</h1>
+            <div class="subtext">Team Flux, Johns Hopkins Whiting School of Engineering</div>
+        </div>
+        <div class="mainview">
+            <div class="leftview">
+                <div class="gameboard">
+                    Game board            Game board
+                    Game board
+                    Game board
+                    Game board
+                    Game board
+                    Game board
+                    Game board
+                </div>
+                <div class="topbox">
+                    <div class="actionbtns">
+                        <button id="startGameButton" class="btn btn-success btn-sm" onclick="startGame()" style="display:none">Start Game</button>
+                        <button id="suggestButton" class="btn btn-primary btn-sm" onclick="suggest()" style="display:none">Make Suggestion</button>
+                        <button id="disproveButton" class="btn btn-primary btn-sm" onclick="disprove()" style="display:none">Disprove</button>
+                        <button id="accuseButton" class="btn btn-primary btn-sm" onclick="accuse()" style="display:none">Make Accusation</button>
+                        <button id="endTurnButton" class="btn btn-danger btn-sm" onclick="endTurn()" style="display:none">End Turn</button>
+                        <button id="resetGameButton" class="btn btn-success btn-sm" onclick="resetGame()"  style="display:block">Reset Game</button>
+                    </div>
+                </div>
+            </div>
+            <div class="sidebar">
+                <form id="playerNamePrompt" class="sidebox">
+                    <label class="label"><i class="fa fa-user"></i> Enter your player name</label>
+                    <input type="text" id="playerName" class="form-control" name="playerName" placeholder="Player Name" />
+                    <button id="joinGame" class="btn btn-primary">Join Game</button>
+                    <div id="playerNamePromptErr"></div>
+                </form>
+                <div class="sidebox">
+                    <label class="label"><i class="fa fa-gamepad"></i> Current Room</label>
+                    <div id="room">No players currently</div>
+                </div>
+                <div class="sidebox">
+                    <label class="label"><i class="fa fa-info-circle"></i> Current Status</label>
+                    <div id="status"></div>
+                </div>
+                <div class="sidebox">
+                    <label class="label"><i class="fa fa-id-card"></i> Current Cards</label>
+                    <div id="cards"></div>
+                </div>
+            </div>
+        </div>        
+    </div>
+    <script type="text/javascript" src="{{ url_for('static', filename='client.js') }}"></script>
+
     
 </body>
 </html>
