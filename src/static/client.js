@@ -43,6 +43,12 @@ socket.on('connect', () => {
     socket.emit(actions.CLIENT_CONNECTION, {data: 'Client connected'});
 });
 
+function checkIfExists(someVariable, someProperty) {
+    if (typeof someVariable !== 'undefined' && someVariable.hasOwnProperty(someProperty)) {
+        return true;
+    }
+    return false;
+}
 
 function joinGame(event) {
     event.preventDefault();
@@ -115,16 +121,16 @@ function endTurn() {
 socket.on('message', (data) => {
     let parsedMessage = JSON.parse(data);
     let gameState = parsedMessage.gameState;
-
+    let connectedPlayerName = GLOBAL_CLIENT_STATE.connectedPlayerName;
     statusDiv = document.getElementById("status");
     statusDiv.innerHTML = "In " + GLOBAL_CLIENT_STATE.connectedPlayerName + "'s client. Current turn number: " + gameState.turn + " Current player's turn: " + gameState.current_player;
     console.log(parsedMessage.responseToken);
     console.log(gameState.player_cards);
-    if (typeof gameState.player_cards !== 'undefined') {
-        console.log(gameState.player_cards[GLOBAL_CLIENT_STATE.connectedPlayerName]);
+    if (checkIfExists(gameState.player_cards, connectedPlayerName)) {
 
         cardsDiv = document.getElementById("cards");
-        cardsDiv.innerHTML = "Current cards: "
+        cardsDiv.innerHTML = "Current cards: ";
+
 
         for (let i = 0; i < gameState.player_cards[GLOBAL_CLIENT_STATE.connectedPlayerName].length; i++)
         {

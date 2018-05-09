@@ -17,7 +17,7 @@ globalGameState = {
     "players": [],
     "turn": 0,
     "current_player": "",
-    "player_cards": {}
+    "player_cards": dict()
 }
 
 weapons = ["candlestick", "revolver",
