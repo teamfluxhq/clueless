@@ -26,7 +26,7 @@ weapons = ["candlestick", "revolver",
 
 rooms = ["study", "library", "conservatory",
          "hall", "kitchen", "ballroom",
-         "dining_room", "lounge", "billard_room"]
+         "dining_room", "lounge", "billiard_room"]
 
 suspects = ["white", "peacock",
               "scarlet", "mustard",
@@ -117,6 +117,17 @@ def handle_message(data):
         emit('message', responseStr, broadcast=True)
         
     elif given_action["action"] == "END_TURN":
+        globalGameState["turn"] += 1
+        globalGameState["current_player"] = globalGameState["players"][globalGameState["turn"] % len(globalGameState["players"])]
+        response = {
+            "responseToken": "PLAYER_STATE",
+            "payload": "Player State",
+            "gameState": globalGameState
+        }
+        responseStr = json.dumps(response)
+        emit('message', responseStr, broadcast=True)
+    elif given_action["action"] == "SUGGEST":
+        print(given_action["weapon"], given_action["suspect"])
         globalGameState["turn"] += 1
         globalGameState["current_player"] = globalGameState["players"][globalGameState["turn"] % len(globalGameState["players"])]
         response = {

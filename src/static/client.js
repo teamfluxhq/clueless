@@ -32,6 +32,52 @@ let responses = {
     GAME_STARTED_STATE: 'GAME_STARTED_STATE'
 }
 
+
+/******
+ * weapons = ["candlestick", "revolver",
+           "rope", "wrench",
+           "lead_pipe", "knife"]
+
+rooms = ["study", "library", "conservatory",
+         "hall", "kitchen", "ballroom",
+         "dining_room", "lounge", "billard_room"]
+
+suspects = ["white", "peacock",
+              "scarlet", "mustard",
+              "green", "plum"]
+ * 
+ * 
+ */
+
+const weaponUri = "/static/assets/weapons/";
+const roomsUri = "/static/assets/rooms/";
+const charactersUri = "/static/assets/characters/";
+
+let assetLocations = {
+    "candlestick": weaponUri + "candlestick.jpg",
+    "knife": weaponUri + "knife.jpg",
+    "lead_pipe": weaponUri + "leadPipe.jpg",
+    "revolver": weaponUri + "revolver.jpg",
+    "rope": weaponUri + "rope.jpg",
+    "wrench": weaponUri + "wrench.jpg",
+    "ballroom": roomsUri + "ballroom.jpg",
+    "billiard_room": roomsUri + "billiardRoom.jpg",
+    "clue": roomsUri + "clue.jpg",
+    "conservatory": roomsUri + "conservatory.jpg",
+    "dining_room": roomsUri + "diningRoom.jpg",
+    "hall": roomsUri + "hall.jpg",
+    "kitchen": roomsUri + "kitchen.jpg",
+    "library": roomsUri + "library.jpg",
+    "lounge": roomsUri + "lounge.jpg",
+    "study": roomsUri + "study.jpg",
+    "mustard": charactersUri + "colonelMustard.jpg",
+    "scarlet": charactersUri + "missScarlet.jpg",
+    "green": charactersUri + "mrGreen.jpg",
+    "peacock": charactersUri + "mrsPeacock.jpg",
+    "white": charactersUri + "mrsWhite.jpg",
+    "plum": charactersUri + "professorPlum.jpg",
+};
+
 // DOM elements
 let roomDiv = document.getElementById("room");
 let playerNamePrompt = document.getElementById("playerNamePrompt");
@@ -42,6 +88,17 @@ socket.on('connect', () => {
     // Connects to the websocket server
     socket.emit(actions.CLIENT_CONNECTION, {data: 'Client connected'});
 });
+
+function initBoardCanvas() {
+    let canvas = document.getElementById("gamecanvas");
+    let context = canvas.getContext("2d");
+    let imageObj = new Image();
+    imageObj.onload = () => {
+        context.drawImage(imageObj, 0, 0, imageObj.width, imageObj.height);
+    }
+    imageObj.src = "/static/assets/gameboard1.jpg";
+}
+initBoardCanvas();
 
 function checkIfExists(someVariable, someProperty) {
     if (typeof someVariable !== 'undefined' && someVariable.hasOwnProperty(someProperty)) {
@@ -89,9 +146,21 @@ function startGame() {
     socket.send(JSON.stringify(sendObjToServer))
 }
 
+function suggestPreparations(){
+    document.getElementById("suggestButton").style.display = "none";
+    document.getElementById("accuseButton").style.display = "none";
+    document.getElementById("endTurnButton").style.display = "none";
+    document.getElementById("disproveButton").style.display = "none";
+    document.getElementById("suspectsList").style.display = "block";
+    document.getElementById("weaponsList").style.display = "block";
+    document.getElementById("submitSuggestion").style.display = "block";
+}
+
 function suggest() {
     let sendObjToServer = {
         action: actions.SUGGEST,
+        weapon: document.getElementById("weaponsList").value,
+        suspect: document.getElementById("suspectsList").value
     }
     socket.send(JSON.stringify(sendObjToServer))
 }
@@ -124,20 +193,6 @@ socket.on('message', (data) => {
     let connectedPlayerName = GLOBAL_CLIENT_STATE.connectedPlayerName;
     statusDiv = document.getElementById("status");
     statusDiv.innerHTML = "In " + GLOBAL_CLIENT_STATE.connectedPlayerName + "'s client. Current turn number: " + gameState.turn + " Current player's turn: " + gameState.current_player;
-    console.log(parsedMessage.responseToken);
-    console.log(gameState.player_cards);
-    console.log(connectedPlayerName);
-    if (checkIfExists(gameState.player_cards, connectedPlayerName)) {
-
-        cardsDiv = document.getElementById("cards");
-        cardsDiv.innerHTML = "Current cards: ";
-
-
-        for (let i = 0; i < gameState.player_cards[GLOBAL_CLIENT_STATE.connectedPlayerName].length; i++)
-        {
-            cardsDiv.innerHTML += gameState.player_cards[GLOBAL_CLIENT_STATE.connectedPlayerName][i] + " ";
-        }
-    }
 
     switch (parsedMessage.responseToken) {
         case responses.PLAYER_JOINED_GAME:
@@ -182,6 +237,7 @@ socket.on('message', (data) => {
             location.reload();
             break;
         case responses.GAME_STARTED_STATE:
+            initBoardCanvas();
             startButton = document.getElementById('startGameButton');
             startButton.style.display = "none";
             // document.getElementById('resetGameButton').style.display = "none";
@@ -189,6 +245,23 @@ socket.on('message', (data) => {
                 document.getElementById('suggestButton').style.display = "block";
                 document.getElementById('accuseButton').style.display = "block";
                 document.getElementById('endTurnButton').style.display = "block";
+            }
+
+            // Deals the cards out
+            if (checkIfExists(gameState.player_cards, connectedPlayerName)) {
+
+                cardsDiv = document.getElementById("cards");        
+        
+                for (let i = 0; i < gameState.player_cards[GLOBAL_CLIENT_STATE.connectedPlayerName].length; i++)
+                {
+                    const currentItem = gameState.player_cards[GLOBAL_CLIENT_STATE.connectedPlayerName][i];
+                    if (assetLocations.hasOwnProperty(currentItem)) {
+                        cardsDiv.innerHTML += "<button class='btn btn-primary card'><img src='" + assetLocations[currentItem] + "' alt='" + assetLocations[currentItem] + "' width='75' /></button>";
+                    } else {
+                        cardsDiv.innerHTML += currentItem  + " ";
+                    }
+                    
+                }
             }
             break;
         case responses.PLAYER_STATE:

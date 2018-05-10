@@ -24,21 +24,32 @@
         <div class="mainview">
             <div class="leftview">
                 <div class="gameboard">
-                    Game board            Game board
-                    Game board
-                    Game board
-                    Game board
-                    Game board
-                    Game board
-                    Game board
+                    <canvas id="gamecanvas" width="564" height="590"></canvas>
                 </div>
                 <div class="topbox">
                     <div class="actionbtns">
                         <button id="startGameButton" class="btn btn-success btn-sm" onclick="startGame()" style="display:none">Start Game</button>
-                        <button id="suggestButton" class="btn btn-primary btn-sm" onclick="suggest()" style="display:none">Make Suggestion</button>
+                        <button id="suggestButton" class="btn btn-primary btn-sm" onclick="suggestPreparations()" style="display:none">Make Suggestion</button>
                         <button id="disproveButton" class="btn btn-primary btn-sm" onclick="disprove()" style="display:none">Disprove</button>
                         <button id="accuseButton" class="btn btn-primary btn-sm" onclick="accuse()" style="display:none">Make Accusation</button>
                         <button id="endTurnButton" class="btn btn-danger btn-sm" onclick="endTurn()" style="display:none">End Turn</button>
+                        <select id="suspectsList" style="display:none">
+                            <option value="candlestick">Candlestick</option>
+                            <option value="revolver">Revolver</option>
+                            <option value="rope">Rope</option>
+                            <option value="wrench">Wrench</option>
+                            <option value="lead_pipe">Lead Pipe</option>
+                            <option value="knife">Knife</option>
+                        </select>
+                        <select id="weaponsList" style="display:none">
+                            <option value="white">White</option>
+                            <option value="peacock">Peacock</option>
+                            <option value="scarlet">Scarlet</option>
+                            <option value="mustard">Mustard</option>
+                            <option value="green">Green</option>
+                            <option value="plum">Plum</option>
+                        </select>
+                        <button id="submitSuggestion" class="btn btn-success btn-sm" onclick="suggest()" style="display:none" >Submit Suggestion</button>
                         <button id="resetGameButton" class="btn btn-success btn-sm" onclick="resetGame()"  style="display:block">Reset Game</button>
                     </div>
                 </div>
