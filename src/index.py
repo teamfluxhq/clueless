@@ -126,6 +126,17 @@ def handle_message(data):
         }
         responseStr = json.dumps(response)
         emit('message', responseStr, broadcast=True)
+    elif given_action["action"] == "SUGGEST":
+        print(given_action["weapon"], given_action["suspect"])
+        globalGameState["turn"] += 1
+        globalGameState["current_player"] = globalGameState["players"][globalGameState["turn"] % len(globalGameState["players"])]
+        response = {
+            "responseToken": "PLAYER_STATE",
+            "payload": "Player State",
+            "gameState": globalGameState
+        }
+        responseStr = json.dumps(response)
+        emit('message', responseStr, broadcast=True)
     else:
         response = {
             "responseToken": "UNIDENTIFIED_ACTION",

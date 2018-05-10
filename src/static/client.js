@@ -159,6 +159,8 @@ function suggestPreparations(){
 function suggest() {
     let sendObjToServer = {
         action: actions.SUGGEST,
+        weapon: document.getElementById("weaponsList").value,
+        suspect: document.getElementById("suspectsList").value
     }
     socket.send(JSON.stringify(sendObjToServer))
 }
