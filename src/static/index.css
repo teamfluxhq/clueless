@@ -16,11 +16,15 @@ body {
    -webkit-box-shadow: 2px 2px 2px 2px #ccc;
    box-shadow:         2px 2px 2px 2px #ccc;
 }
+.card {
+    margin-right: 5px;
+    display: inline;
+}
 .leftview {
     display: flex;
-    flex: 8;
+    flex: 6;
     flex-direction: column;
-    min-height: 600px;
+    min-height: 550px;
 }
 
 .sidebox {
@@ -87,6 +91,9 @@ body {
 
 .gameboard {
     display: flex;
+    justify-content: center;
+    align-content: center;
+    align-items: center;
     background: rgba(255,255,255,0.8);
     padding: 10px;
     flex: 10;

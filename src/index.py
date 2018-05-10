@@ -26,7 +26,7 @@ weapons = ["candlestick", "revolver",
 
 rooms = ["study", "library", "conservatory",
          "hall", "kitchen", "ballroom",
-         "dining_room", "lounge", "billard_room"]
+         "dining_room", "lounge", "billiard_room"]
 
 suspects = ["white", "peacock",
               "scarlet", "mustard",
