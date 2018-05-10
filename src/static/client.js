@@ -28,8 +28,11 @@ let responses = {
     PLAYER_ALREADY_JOINED: 'PLAYER_ALREADY_JOINED',
     CLEARED_GAME_STATE: 'CLEARED_GAME_STATE',
     MAXIMUM_PLAYER_REACHED: 'MAXIMUM_PLAYER_REACHED',
-    PLAYER_STATE: 'PLAYER_STATE',
-    GAME_STARTED_STATE: 'GAME_STARTED_STATE'
+    GAME_STARTED_STATE: 'GAME_STARTED_STATE',
+    SUGGEST_STATE: 'SUGGEST_STATE',
+    DISPROVE_STATE: 'DISPROVE_STATE',
+    ACCUSE_STATE: 'ACCUSE_STATE'
+
 }
 
 
@@ -147,13 +150,12 @@ function startGame() {
 }
 
 function suggestPreparations(){
-    document.getElementById("suggestButton").style.display = "none";
-    document.getElementById("accuseButton").style.display = "none";
-    document.getElementById("endTurnButton").style.display = "none";
-    document.getElementById("disproveButton").style.display = "none";
-    document.getElementById("suspectsList").style.display = "block";
-    document.getElementById("weaponsList").style.display = "block";
-    document.getElementById("submitSuggestion").style.display = "block";
+    hideButton("suggestButton");
+    hideButton("accuseButton");
+    hideButton("endTurnButton");
+    showButton("suspectsList");
+    showButton("weaponsList");
+    showButton("submitSuggestion");
 }
 
 function suggest() {
@@ -162,13 +164,20 @@ function suggest() {
         weapon: document.getElementById("weaponsList").value,
         suspect: document.getElementById("suspectsList").value
     }
+    hideButton("weaponsList")
+    hideButton("suspectsList")
     socket.send(JSON.stringify(sendObjToServer))
 }
 
 function disprove() {
     let sendObjToServer = {
         action: actions.DISPROVE,
+        disproveValue: document.getElementById("disproveCards").value
     }
+    hideButton("disproveCards");
+    hideButton("disproveButton");
+    disproveSelect = document.getElementById("disproveCards")
+    disproveSelect.innerHTML = "";
     socket.send(JSON.stringify(sendObjToServer))
 }
 
@@ -184,6 +193,14 @@ function endTurn() {
         action: actions.END_TURN,
     }
     socket.send(JSON.stringify(sendObjToServer))
+}
+
+function showButton(name) {
+    document.getElementById(name).style.display = "block"
+}
+
+function hideButton(name){
+    document.getElementById(name).style.display = "none"
 }
 
 
@@ -212,10 +229,7 @@ socket.on('message', (data) => {
             // When there are at least 3 players, the game can start
             // hence, we enabled the start game button
             if (gameState.players.length >= 3) {
-                startButton = document.getElementById('startGameButton');
-                if (startButton.style.display === "none") {
-                    startButton.style.display = "block";
-                }
+                showButton('startGameButton');
             }
 
             break;
@@ -238,13 +252,11 @@ socket.on('message', (data) => {
             break;
         case responses.GAME_STARTED_STATE:
             initBoardCanvas();
-            startButton = document.getElementById('startGameButton');
-            startButton.style.display = "none";
-            // document.getElementById('resetGameButton').style.display = "none";
+            hideButton('startGameButton');
             if (GLOBAL_CLIENT_STATE.connectedPlayerName === gameState.current_player) {
-                document.getElementById('suggestButton').style.display = "block";
-                document.getElementById('accuseButton').style.display = "block";
-                document.getElementById('endTurnButton').style.display = "block";
+                showButton('suggestButton');
+                showButton('accuseButton');
+                showButton('endTurnButton');
             }
 
             // Deals the cards out
@@ -260,21 +272,47 @@ socket.on('message', (data) => {
                     } else {
                         cardsDiv.innerHTML += currentItem  + " ";
                     }
-                    
                 }
             }
             break;
-        case responses.PLAYER_STATE:
-            document.getElementById('suggestButton').style.display = "none";
-            document.getElementById('accuseButton').style.display = "none";
-            document.getElementById('endTurnButton').style.display = "none";
-            // document.getElementById('resetGameButton').style.display = "none";
+        case responses.SUGGEST_STATE:
+            hideButton('suggestButton');
+            hideButton('accuseButton');
+            hideButton('endTurnButton');
             if (GLOBAL_CLIENT_STATE.connectedPlayerName === gameState.current_player) {
-                document.getElementById('suggestButton').style.display = "block";
-                document.getElementById('accuseButton').style.display = "block";
-                document.getElementById('endTurnButton').style.display = "block";
+                showButton('suggestButton');
+                showButton('accuseButton');
+                showButton('endTurnButton');
             }        
             break;
+        case responses.DISPROVE_STATE:
+            hideButton("suspectsList");
+            hideButton("weaponsList");
+            hideButton("submitSuggestion");
+
+            if (gameState.disproving_player == GLOBAL_CLIENT_STATE.connectedPlayerName){
+                disproveSelect = document.getElementById("disproveCards")
+                if (GLOBAL_CLIENT_STATE.connectedPlayerName in gameState.can_disprove) {
+                    for (let i = 0; i < gameState.can_disprove[GLOBAL_CLIENT_STATE.connectedPlayerName].length; i++)
+                    {
+                        currentVal = gameState.can_disprove[GLOBAL_CLIENT_STATE.connectedPlayerName][i]
+                        disproveSelect.innerHTML += "<option value=\"" + currentVal + "\">" + currentVal + "</option>"
+                    }
+                }
+                else {
+                    disproveSelect.innerHTML += "<option value=\"novalue\">No Cards</option>"
+                }
+                showButton("disproveCards");
+                showButton("disproveButton");
+            }
+            break;
+        case responses.ACCUSE_STATE:
+            if (GLOBAL_CLIENT_STATE.connectedPlayerName === gameState.current_player) {
+                showButton("accuseButton");
+                showButton("endTurnButton");
+            }
+            break;
+
         default:
             console.log(parsedMessage);
     }
