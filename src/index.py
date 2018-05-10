@@ -1,7 +1,6 @@
 ###################################
 ## Team Flux Copyright 2018
 ## 
-## (test Michael Woods)
 ###################################
 from flask import Flask, render_template
 from flask_socketio import SocketIO, send, emit
@@ -128,6 +127,18 @@ def handle_message(data):
         emit('message', responseStr, broadcast=True)
     elif given_action["action"] == "SUGGEST":
         print(given_action["weapon"], given_action["suspect"])
+	#add guard in for catching weapon and suspect just in case
+	#also gather the player's current weapon
+	#print to all users that a suggestion has been made using a modal
+	for index in range(len(globalGameState["players"])):
+	     if not (globalGameState["players"][index] == globalGameState["current_player"]):
+	          if ( given_action["weapon"] in globalGameState["players"][index].player_cards && given_action["suspect"] in globalGameState["players"][index].player_cards):
+		       #&& add in 3rd constraint for location)
+ 		       print("they can disprove")
+		       #add in logic to print a modal pop up to the user who has a card that is being suggested 
+		       
+	          
+
         globalGameState["turn"] += 1
         globalGameState["current_player"] = globalGameState["players"][globalGameState["turn"] % len(globalGameState["players"])]
         response = {
