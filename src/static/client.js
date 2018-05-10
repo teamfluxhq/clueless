@@ -146,6 +146,16 @@ function startGame() {
     socket.send(JSON.stringify(sendObjToServer))
 }
 
+function suggestPreparations(){
+    document.getElementById("suggestButton").style.display = "none";
+    document.getElementById("accuseButton").style.display = "none";
+    document.getElementById("endTurnButton").style.display = "none";
+    document.getElementById("disproveButton").style.display = "none";
+    document.getElementById("suspectsList").style.display = "block";
+    document.getElementById("weaponsList").style.display = "block";
+    document.getElementById("submitSuggestion").style.display = "block";
+}
+
 function suggest() {
     let sendObjToServer = {
         action: actions.SUGGEST,
