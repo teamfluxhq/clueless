@@ -1,0 +1,102 @@
+
+body {
+    font-family: 'Dosis', sans-serif;
+    font-size: 20px;
+    background: url(images/bgblurred.jpg) no-repeat center center fixed; 
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+.playerNameBox {
+   border: 0px solid #999;
+   padding: 10px;
+   text-align: left;
+   -moz-box-shadow:    2px 2px 2px 2px #ccc;
+   -webkit-box-shadow: 2px 2px 2px 2px #ccc;
+   box-shadow:         2px 2px 2px 2px #ccc;
+}
+.leftview {
+    display: flex;
+    flex: 8;
+    flex-direction: column;
+    min-height: 600px;
+}
+
+.sidebox {
+   border: 0px solid #999;
+   background: #fcfcfc;
+   opacity: 0.9;
+   margin-top: 10px;
+   padding: 10px;
+   text-align: left;
+   border-radius: 5px;
+}
+.topbox {
+    display: flex;
+    flex-direction: row;
+    background: rgba(171, 255, 244, 0.8);
+    margin-top: 10px;
+    margin-right: 20px;
+    padding: 10px;
+    border-radius: 5px;
+}
+.actionbtns {
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+}
+.actionbtns button {
+    margin-right: 5px;
+}
+.sidebox #joinGame {
+    margin-top: 10px;
+}
+.mainview {
+    display: flex;
+    flex: 1;
+    padding: 10px;
+    flex-direction: row;
+    border: 0px solid #999;
+    border-radius: 10px;
+}
+.headerview {
+    padding-left: 10px;
+}
+.subtext {
+    font-size: 16px;
+    color: #fff;
+}
+.game {
+    margin: 0 auto;
+    background: transparent;
+    width: 85%;
+}
+
+.label {
+    font-weight: bold;
+    color: #0099cc;
+}
+.header {
+    margin: 20px auto;
+    color: white;
+    margin-bottom: 5px;
+    font-family: 'Dosis', sans-serif;
+    font-size: 3em;
+}
+
+.gameboard {
+    display: flex;
+    background: rgba(255,255,255,0.8);
+    padding: 10px;
+    flex: 10;
+    margin-top: 10px;
+    margin-right: 20px;
+    border-radius: 5px;
+}
+.sidebar {
+    display: flex;
+    text-align: center;
+    flex-direction: column;
+    flex: 3;
+}
