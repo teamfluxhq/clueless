@@ -89,16 +89,94 @@ socket.on('connect', () => {
     socket.emit(actions.CLIENT_CONNECTION, {data: 'Client connected'});
 });
 
-function initBoardCanvas() {
-    let canvas = document.getElementById("gamecanvas");
-    let context = canvas.getContext("2d");
-    let imageObj = new Image();
-    imageObj.onload = () => {
-        context.drawImage(imageObj, 0, 0, imageObj.width, imageObj.height);
+
+
+let myGameBoard;
+let myGamePiece;
+class GameBoard {
+    constructor() {
+        this.canvas = document.getElementById("gamecanvas");
+        this.context = this.canvas.getContext("2d");
     }
-    imageObj.src = "/static/assets/gameboard1.jpg";
+    draw(drawPieces) {
+        this.imageObj = new Image();
+        this.imageObj.onload = () => {
+            this.context.drawImage(this.imageObj, 0, 0, this.imageObj.width, this.imageObj.height);
+            drawPieces(this.context);
+        }
+        this.imageObj.src = "/static/assets/gameboard.png";
+    }
+    clear() {
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
 }
-initBoardCanvas();
+
+class Piece {
+    constructor(width, height, color, x, y, context) {
+        this.width = width;
+        this.height = height;
+        this.color = color;
+        this.x = x;
+        this.y = y;
+        this.context = context;
+    }
+    draw() {
+        this.context.fillStyle = this.color;
+        this.context.fillRect(this.x, this.y, this.width, this.height);
+    }
+    newPos(incX, incY) {
+        this.x += incX;
+        this.y += incY;
+    }
+}
+
+myGameBoard = new GameBoard();
+
+let drawPieces = (context) => {
+    if (!myGamePiece) {
+        myGamePiece = new Piece(50, 50, "blue", 0, 0, context);
+    }
+    myGamePiece.draw();
+}
+
+myGameBoard.draw(drawPieces);
+
+document.onkeydown = handleKeyDown;
+
+function handleKeyDown(e) {
+    e = e || window.event;
+
+    if (e.keyCode == '38') {
+        // Up Movement
+        myGamePiece.newPos(0, -20);
+        myGameBoard.clear();
+        myGameBoard.draw(drawPieces);
+        console.log("gets here!", myGamePiece);
+    }
+    else if (e.keyCode == '40') {
+        // down arrow
+        myGamePiece.newPos(0, 20);
+        myGameBoard.clear();
+        myGameBoard.draw(drawPieces);
+        console.log("gets here!");
+    }
+    else if (e.keyCode == '37') {
+       // left arrow
+        myGamePiece.newPos(-20, 0);
+        myGameBoard.clear();
+        myGameBoard.draw(drawPieces);
+        console.log("gets here!");
+    }
+    else if (e.keyCode == '39') {
+       // right arrow
+       myGamePiece.newPos(20, 0);
+       myGameBoard.clear();
+        myGameBoard.draw(drawPieces);
+       console.log("gets here!");
+
+    }
+}
+
 
 function checkIfExists(someVariable, someProperty) {
     if (typeof someVariable !== 'undefined' && someVariable.hasOwnProperty(someProperty)) {
