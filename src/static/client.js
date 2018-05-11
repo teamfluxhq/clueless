@@ -203,6 +203,10 @@ function hideButton(name){
     document.getElementById(name).style.display = "none"
 }
 
+function alertInBox(message){
+    let alertBox = document.getElementById("alerts");   
+    alertBox.innerHTML = message + "<br />" + alertBox.innerHTML;    
+}
 
 socket.on('message', (data) => {
     let parsedMessage = JSON.parse(data);
@@ -279,6 +283,8 @@ socket.on('message', (data) => {
             hideButton('suggestButton');
             hideButton('accuseButton');
             hideButton('endTurnButton');
+   	    alertInBox(parsedMessage.payload + " accuses " + gameState.current_suggestion.suspect + " for the murder by using a " + gameState.current_suggestion.weapon + ".");
+
             if (GLOBAL_CLIENT_STATE.connectedPlayerName === gameState.current_player) {
                 showButton('suggestButton');
                 showButton('accuseButton');
@@ -290,7 +296,9 @@ socket.on('message', (data) => {
             hideButton("weaponsList");
             hideButton("submitSuggestion");
 
-            if (gameState.disproving_player == GLOBAL_CLIENT_STATE.connectedPlayerName){
+            if (gameState.disproving_player == GLOBAL_CLIENT_STATE.connectedPlayerName){ 
+		alertInBox("Your turn to Disprove. If you have any of the cards mentioned in the suggestion, then they are eligible to disprove the suggestion");         	
+		
                 disproveSelect = document.getElementById("disproveCards")
                 if (GLOBAL_CLIENT_STATE.connectedPlayerName in gameState.can_disprove) {
                     for (let i = 0; i < gameState.can_disprove[GLOBAL_CLIENT_STATE.connectedPlayerName].length; i++)
@@ -307,7 +315,14 @@ socket.on('message', (data) => {
             }
             break;
         case responses.ACCUSE_STATE:
+	    //console.log(parsedMessage.payload);
+	    if (parsedMessage.payload === "disproveFailed") {
+		alertInBox("There are no players with any eligible cards to disprove the suggestion.");
+		
+	    }
+
             if (GLOBAL_CLIENT_STATE.connectedPlayerName === gameState.current_player) {
+		hideButton("suggestButton");
                 showButton("accuseButton");
                 showButton("endTurnButton");
             }

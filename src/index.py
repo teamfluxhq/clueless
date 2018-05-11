@@ -123,7 +123,7 @@ def handle_message(data):
         globalGameState["current_player"] = globalGameState["players"][globalGameState["turn"] % len(globalGameState["players"])]
         response = {
             "responseToken": "SUGGEST_STATE",
-            "payload": "Player State",
+            "payload": "Turn Ended",
             "gameState": globalGameState
         }
         responseStr = json.dumps(response)
@@ -133,6 +133,14 @@ def handle_message(data):
                                                                                          "CURRENT ROOM",
                                                                                          given_action["suspect"],
                                                                                          given_action["weapon"]))
+	response = {
+            "responseToken": "SUGGEST_STATE",
+            "payload": "User " + globalGameState["current_player"],
+            "gameState": globalGameState
+        }
+        responseStr = json.dumps(response)
+        emit('message', responseStr, broadcast=True)
+	
         #add guard in for catching weapon and suspect just in case
         #also gather the player's current weapon
         #print to all users that a suggestion has been made using a modal
@@ -140,7 +148,15 @@ def handle_message(data):
             if not (player == globalGameState["current_player"]):
                 if given_action["weapon"] in globalGameState["player_cards"][player]:
                     print("{} can disprove using {}".format(player, given_action["weapon"]))
-                    if player not in globalGameState["can_disprove"]:
+                    response = {
+		         "responseToken": "SUGGEST_STATE",
+            		 "payload": "User " + globalGameState["current_player"],
+            		 "gameState": globalGameState
+        	    }  
+        	    responseStr = json.dumps(response)
+                    emit('message', responseStr, broadcast=True)
+
+		    if player not in globalGameState["can_disprove"]:
                         globalGameState["can_disprove"][player] = [given_action["weapon"]]
                     else:
                         globalGameState["can_disprove"][player].append(given_action["weapon"])
@@ -187,7 +203,7 @@ def handle_message(data):
                 globalGameState["can_disprove"] = dict()
                 response = {
                     "responseToken": "ACCUSE_STATE",
-                    "payload": "Accuse State",
+                    "payload": "disproveFailed",
                     "gameState": globalGameState
                 }
                 responseStr = json.dumps(response)
@@ -201,7 +217,7 @@ def handle_message(data):
                 "gameState": globalGameState
             }
             responseStr = json.dumps(response)
-            emit('message', responseStr, broadcast=True)
+	    emit('message', responseStr, broadcast=True)
 
     else:
         response = {
@@ -233,6 +249,7 @@ def initialize_card_state():
     solution["suspect"] = suspects[0]
 
     combined_cards = weapons[1:len(weapons)] + rooms[1:len(rooms)] + suspects[1:len(suspects)]
+    print(solution)
 
     random.shuffle(combined_cards)
 
