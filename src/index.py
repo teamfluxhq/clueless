@@ -132,7 +132,7 @@ def handle_message(data):
 	#print to all users that a suggestion has been made using a modal
 	for index in range(len(globalGameState["players"])):
 	     if not (globalGameState["players"][index] == globalGameState["current_player"]):
-	          if ( given_action["weapon"] in globalGameState["players"][index].player_cards && given_action["suspect"] in globalGameState["players"][index].player_cards):
+	          if ( given_action["weapon"] in globalGameState["players"][index].player_cards and given_action["suspect"] in globalGameState["players"][index].player_cards):
 		       #&& add in 3rd constraint for location)
  		       print("they can disprove")
 		       #add in logic to print a modal pop up to the user who has a card that is being suggested 
