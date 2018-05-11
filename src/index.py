@@ -129,38 +129,22 @@ def handle_message(data):
         responseStr = json.dumps(response)
         emit('message', responseStr, broadcast=True)
     elif given_action["action"] == "SUGGEST":
-        print("Player {} suggested the murder took place in {}, with {} using {}".format(globalGameState["current_player"],
-                                                                                         "CURRENT ROOM",
-                                                                                         given_action["suspect"],
-                                                                                         given_action["weapon"]))
-	response = {
-            "responseToken": "SUGGEST_STATE",
-            "payload": "User " + globalGameState["current_player"],
-            "gameState": globalGameState
-        }
-        responseStr = json.dumps(response)
-        emit('message', responseStr, broadcast=True)
-	
+        print("Player {} suggested the murder took place in {}, with {} using {}".format(globalGameState["current_player"], "CURRENT ROOM", given_action["suspect"], given_action["weapon"]))
+
         #add guard in for catching weapon and suspect just in case
         #also gather the player's current weapon
         #print to all users that a suggestion has been made using a modal
-        for player in globalGameState["players"]:
+        for player in globalGameState["players"]: 
             if not (player == globalGameState["current_player"]):
                 if given_action["weapon"] in globalGameState["player_cards"][player]:
                     print("{} can disprove using {}".format(player, given_action["weapon"]))
-                    response = {
-		         "responseToken": "SUGGEST_STATE",
-            		 "payload": "User " + globalGameState["current_player"],
-            		 "gameState": globalGameState
-        	    }  
-        	    responseStr = json.dumps(response)
+                    response = {"responseToken": "SUGGEST_STATE", "payload": "User " + globalGameState["current_player"], "gameState": globalGameState}  
+                    responseStr = json.dumps(response)
                     emit('message', responseStr, broadcast=True)
-
-		    if player not in globalGameState["can_disprove"]:
+                    if player not in globalGameState["can_disprove"]:
                         globalGameState["can_disprove"][player] = [given_action["weapon"]]
                     else:
                         globalGameState["can_disprove"][player].append(given_action["weapon"])
-
                 if given_action["suspect"] in globalGameState["player_cards"][player]:
                     print("{} can disprove using {}".format(player, given_action["suspect"]))
                     if player not in globalGameState["can_disprove"]:

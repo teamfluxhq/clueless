@@ -283,7 +283,9 @@ socket.on('message', (data) => {
             hideButton('suggestButton');
             hideButton('accuseButton');
             hideButton('endTurnButton');
-   	    alertInBox(parsedMessage.payload + " accuses " + gameState.current_suggestion.suspect + " for the murder by using a " + gameState.current_suggestion.weapon + ".");
+            console.log("From the suggest state case: ", gameState);
+
+   	        alertInBox(parsedMessage.payload + " accuses " + gameState.current_suggestion.suspect + " for the murder by using a " + gameState.current_suggestion.weapon + ".");
 
             if (GLOBAL_CLIENT_STATE.connectedPlayerName === gameState.current_player) {
                 showButton('suggestButton');
