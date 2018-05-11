@@ -31,8 +31,8 @@ rooms = ["study", "library", "conservatory",
          "dining_room", "lounge", "billiard_room"]
 
 suspects = ["white", "peacock",
-              "scarlet", "mustard",
-              "green", "plum"]
+            "scarlet", "mustard",
+            "green", "plum"]
 
 solution = {
     "weapon": "",
@@ -92,7 +92,11 @@ def handle_message(data):
         globalGameState = {
             "players": [],
             "turn": 0,
-            "current_player": ""
+            "current_player": "",
+            "player_cards": dict(),
+            "current_suggestion": dict(),
+            "can_disprove": dict(),
+            "disproving_player": ""
         }
         response = {
                 "responseToken": "CLEARED_GAME_STATE",
@@ -134,7 +138,7 @@ def handle_message(data):
         #add guard in for catching weapon and suspect just in case
         #also gather the player's current weapon
         #print to all users that a suggestion has been made using a modal
-        for player in globalGameState["players"]: 
+        for player in globalGameState["players"]:
             if not (player == globalGameState["current_player"]):
                 if given_action["weapon"] in globalGameState["player_cards"][player]:
                     print("{} can disprove using {}".format(player, given_action["weapon"]))
@@ -163,8 +167,8 @@ def handle_message(data):
         globalGameState["disproving_player"] = globalGameState["players"][next_player_index]
 
         response = {
-            "responseToken": "DISPROVE_STATE",
-            "payload": "Disprove State",
+            "responseToken": "PRE_DISPROVE",
+            "payload": "Pre Disprove State",
             "gameState": globalGameState
         }
         responseStr = json.dumps(response)
@@ -197,11 +201,11 @@ def handle_message(data):
             globalGameState["can_disprove"] = dict()
             response = {
                 "responseToken": "ACCUSE_STATE",
-                "payload": "Accuse State",
+                "payload": "{} disproved you using {}".format(globalGameState["disproving_player"], disprove_value),
                 "gameState": globalGameState
             }
             responseStr = json.dumps(response)
-	    emit('message', responseStr, broadcast=True)
+        emit('message', responseStr, broadcast=True)
 
     else:
         response = {

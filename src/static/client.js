@@ -30,12 +30,13 @@ let responses = {
     MAXIMUM_PLAYER_REACHED: 'MAXIMUM_PLAYER_REACHED',
     GAME_STARTED_STATE: 'GAME_STARTED_STATE',
     SUGGEST_STATE: 'SUGGEST_STATE',
+    PRE_DISPROVE: 'PRE_DISPROVE',
     DISPROVE_STATE: 'DISPROVE_STATE',
     ACCUSE_STATE: 'ACCUSE_STATE'
 
 }
 
-
+let alertMessages = []
 /******
  * weapons = ["candlestick", "revolver",
            "rope", "wrench",
@@ -146,16 +147,35 @@ function startGame() {
     let sendObjToServer = {
         action: actions.START_GAME,
     }
+    hideAll();
     socket.send(JSON.stringify(sendObjToServer))
 }
 
 function suggestPreparations(){
-    hideButton("suggestButton");
-    hideButton("accuseButton");
-    hideButton("endTurnButton");
+    hideAll();
+    showSuggest();
+}
+
+function showTurn() {
+    showButton('suggestButton');
+    showButton('accuseButton');
+    showButton('endTurnButton');
+}
+
+function showSuggest() {
     showButton("suspectsList");
     showButton("weaponsList");
     showButton("submitSuggestion");
+}
+
+function showDisprove() {
+    showButton("disproveCards");
+    showButton("disproveButton");
+}
+
+function showAccuse() {
+    showButton('accuseButton');
+    showButton('endTurnButton');
 }
 
 function suggest() {
@@ -164,8 +184,7 @@ function suggest() {
         weapon: document.getElementById("weaponsList").value,
         suspect: document.getElementById("suspectsList").value
     }
-    hideButton("weaponsList")
-    hideButton("suspectsList")
+    hideAll();
     socket.send(JSON.stringify(sendObjToServer))
 }
 
@@ -174,10 +193,7 @@ function disprove() {
         action: actions.DISPROVE,
         disproveValue: document.getElementById("disproveCards").value
     }
-    hideButton("disproveCards");
-    hideButton("disproveButton");
-    disproveSelect = document.getElementById("disproveCards")
-    disproveSelect.innerHTML = "";
+    hideAll();
     socket.send(JSON.stringify(sendObjToServer))
 }
 
@@ -185,6 +201,7 @@ function accuse() {
     let sendObjToServer = {
         action: actions.ACCUSE,
     }
+    hideAll();
     socket.send(JSON.stringify(sendObjToServer))
 }
 
@@ -192,15 +209,31 @@ function endTurn() {
     let sendObjToServer = {
         action: actions.END_TURN,
     }
+    hideAll();
     socket.send(JSON.stringify(sendObjToServer))
 }
 
 function showButton(name) {
-    document.getElementById(name).style.display = "block"
+    let x = document.getElementById(name);
+    x.style.display = "block";
 }
 
 function hideButton(name){
-    document.getElementById(name).style.display = "none"
+    let x = document.getElementById(name);
+    x.style.display = "none";
+}
+
+function hideAll(){
+    hideButton("startGameButton");
+    hideButton("suggestButton");
+    hideButton("accuseButton");
+    hideButton("disproveButton");
+    hideButton("endTurnButton");
+    hideButton("weaponsList");
+    hideButton("suspectsList");
+    hideButton("submitSuggestion");
+    hideButton("disproveCards");
+    hideButton("disproveButton");
 }
 
 function alertInBox(message){
@@ -255,12 +288,11 @@ socket.on('message', (data) => {
             location.reload();
             break;
         case responses.GAME_STARTED_STATE:
+            hideAll();
+
             initBoardCanvas();
-            hideButton('startGameButton');
             if (GLOBAL_CLIENT_STATE.connectedPlayerName === gameState.current_player) {
-                showButton('suggestButton');
-                showButton('accuseButton');
-                showButton('endTurnButton');
+                showTurn();
             }
 
             // Deals the cards out
@@ -280,53 +312,46 @@ socket.on('message', (data) => {
             }
             break;
         case responses.SUGGEST_STATE:
-            hideButton('suggestButton');
-            hideButton('accuseButton');
-            hideButton('endTurnButton');
+            hideAll();
             console.log("From the suggest state case: ", gameState);
 
-   	        alertInBox(parsedMessage.payload + " accuses " + gameState.current_suggestion.suspect + " for the murder by using a " + gameState.current_suggestion.weapon + ".");
-
             if (GLOBAL_CLIENT_STATE.connectedPlayerName === gameState.current_player) {
-                showButton('suggestButton');
-                showButton('accuseButton');
-                showButton('endTurnButton');
+                showTurn();
             }        
             break;
-        case responses.DISPROVE_STATE:
-            hideButton("suspectsList");
-            hideButton("weaponsList");
-            hideButton("submitSuggestion");
+        case responses.PRE_DISPROVE:
+            alertInBox(gameState.current_player + " suggested that " + gameState.current_suggestion.suspect + " killed the victim using the " + gameState.current_suggestion.weapon + ".");
 
-            if (gameState.disproving_player == GLOBAL_CLIENT_STATE.connectedPlayerName){ 
-		alertInBox("Your turn to Disprove. If you have any of the cards mentioned in the suggestion, then they are eligible to disprove the suggestion");         	
-		
-                disproveSelect = document.getElementById("disproveCards")
+        case responses.DISPROVE_STATE:
+            hideAll();
+            if (gameState.disproving_player === GLOBAL_CLIENT_STATE.connectedPlayerName){
+                
+                alertInBox("It is " + gameState.disproving_player + "'s turn to disprove the suggestion using eligible cards.");
+                disproveSelect = document.getElementById("disproveCards");
+                disproveSelect.innerHTML = "";
                 if (GLOBAL_CLIENT_STATE.connectedPlayerName in gameState.can_disprove) {
                     for (let i = 0; i < gameState.can_disprove[GLOBAL_CLIENT_STATE.connectedPlayerName].length; i++)
                     {
-                        currentVal = gameState.can_disprove[GLOBAL_CLIENT_STATE.connectedPlayerName][i]
-                        disproveSelect.innerHTML += "<option value=\"" + currentVal + "\">" + currentVal + "</option>"
+                        currentVal = gameState.can_disprove[GLOBAL_CLIENT_STATE.connectedPlayerName][i];
+                        disproveSelect.innerHTML += "<option value=\"" + currentVal + "\">" + currentVal + "</option>";
                     }
                 }
                 else {
-                    disproveSelect.innerHTML += "<option value=\"novalue\">No Cards</option>"
+                    disproveSelect.innerHTML += "<option value=\"novalue\">No Cards</option>";
                 }
-                showButton("disproveCards");
-                showButton("disproveButton");
+                showDisprove();
             }
             break;
         case responses.ACCUSE_STATE:
-	    //console.log(parsedMessage.payload);
-	    if (parsedMessage.payload === "disproveFailed") {
-		alertInBox("There are no players with any eligible cards to disprove the suggestion.");
-		
-	    }
+            hideAll();
+            //console.log(parsedMessage.payload);
+            if (parsedMessage.payload === "disproveFailed") {
+                alertInBox("There are no players with any eligible cards to disprove the suggestion.");
+            }
 
             if (GLOBAL_CLIENT_STATE.connectedPlayerName === gameState.current_player) {
-		hideButton("suggestButton");
-                showButton("accuseButton");
-                showButton("endTurnButton");
+                alertInBox(parsedMessage.payload);
+                showAccuse();
             }
             break;
 
