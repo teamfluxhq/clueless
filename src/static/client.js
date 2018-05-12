@@ -165,7 +165,7 @@ socket.on('message', (data) => {
     let gameState = parsedMessage.gameState;
     let connectedPlayerName = GLOBAL_CLIENT_STATE.connectedPlayerName;
     statusDiv = document.getElementById("status");
-    statusDiv.innerHTML = "In " + GLOBAL_CLIENT_STATE.connectedPlayerName + "'s client. https://hangouts.google.com/call/wSFGkC1w_wCLyNxjAEpcAAEE turn number: " + gameState.turn + " Current player's turn: " + gameState.current_player;
+    statusDiv.innerHTML = "In " + GLOBAL_CLIENT_STATE.connectedPlayerName + "'s client. Current turn number: " + gameState.turn + " Current player's turn: " + gameState.current_player;
 
     switch (parsedMessage.responseToken) {
         case responses.PLAYER_JOINED_GAME:

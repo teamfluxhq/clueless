@@ -4,6 +4,7 @@
 ###################################
 from flask import Flask, render_template
 from flask_socketio import SocketIO, send, emit
+import movement
 import json
 import random
 app = Flask(__name__)
@@ -17,7 +18,7 @@ globalGameState = {
     "turn": 0,
     "current_player": "",
     "player_cards": dict(),
-    "player_locations": [],
+    "movement_info": dict(),
 }
 
 weapons = ["candlestick", "revolver",
@@ -105,8 +106,7 @@ def handle_message(data):
         # print(solution)
         # assignCards()
         initialize_card_state()
-        print(globalGameState)
-
+        globalGameState = movement.initialize_movement_state(globalGameState)        
         globalGameState["current_player"] = globalGameState["players"][0]
         response = {
             "responseToken": "GAME_STARTED_STATE",
@@ -166,12 +166,6 @@ def handle_message(data):
 #     solution["suspect"] = sample(suspects, 1)
 
 # Randomly assign cards to players
-
-# Preconditions: game has already started
-# Postconditions: players are assigned colors, and starting locations
-def initialize_movement_state():
-    colors = list()
-    possible_colors = [""]
 
 def initialize_card_state():
     global solution
