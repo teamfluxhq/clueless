@@ -32,11 +32,11 @@ let responses = {
     SUGGEST_STATE: 'SUGGEST_STATE',
     PRE_DISPROVE: 'PRE_DISPROVE',
     DISPROVE_STATE: 'DISPROVE_STATE',
-    ACCUSE_STATE: 'ACCUSE_STATE'
-
+    ACCUSE_STATE: 'ACCUSE_STATE',
+    ACCUSE_SUCCESS: 'ACCUSE_SUCCESS',
+    ACCUSE_FAILURE: 'ACCUSE_FAILURE'
 }
 
-let alertMessages = []
 /******
  * weapons = ["candlestick", "revolver",
            "rope", "wrench",
@@ -156,9 +156,23 @@ function suggestPreparations(){
     showSuggest();
 }
 
-function showTurn() {
-    showButton('suggestButton');
-    showButton('accuseButton');
+function accusePreparations(){
+    hideAll();
+    showAccuse();
+}
+
+function showTurnAccuse(gameState) {
+    if (gameState.can_accuse[GLOBAL_CLIENT_STATE.connectedPlayerName]) {
+        showButton('accuseButton');
+    }
+    showButton('endTurnButton');
+}
+
+function showTurn(gameState) {
+    if (gameState.can_accuse[GLOBAL_CLIENT_STATE.connectedPlayerName]) {
+        showButton('suggestButton');
+        showButton('accuseButton');
+    }
     showButton('endTurnButton');
 }
 
@@ -174,8 +188,9 @@ function showDisprove() {
 }
 
 function showAccuse() {
-    showButton('accuseButton');
-    showButton('endTurnButton');
+    showButton("suspectsList");
+    showButton("weaponsList");
+    showButton("submitAccusation");
 }
 
 function suggest() {
@@ -200,6 +215,8 @@ function disprove() {
 function accuse() {
     let sendObjToServer = {
         action: actions.ACCUSE,
+        weapon: document.getElementById("weaponsList").value,
+        suspect: document.getElementById("suspectsList").value
     }
     hideAll();
     socket.send(JSON.stringify(sendObjToServer))
@@ -232,6 +249,7 @@ function hideAll(){
     hideButton("weaponsList");
     hideButton("suspectsList");
     hideButton("submitSuggestion");
+    hideButton("submitAccusation");
     hideButton("disproveCards");
     hideButton("disproveButton");
 }
@@ -292,7 +310,7 @@ socket.on('message', (data) => {
 
             initBoardCanvas();
             if (GLOBAL_CLIENT_STATE.connectedPlayerName === gameState.current_player) {
-                showTurn();
+                showTurn(gameState);
             }
 
             // Deals the cards out
@@ -315,8 +333,12 @@ socket.on('message', (data) => {
             hideAll();
             console.log("From the suggest state case: ", gameState);
 
+            if (gameState.game_ended) {
+                alertInBox("Game has ended, please restart.");
+            }
+
             if (GLOBAL_CLIENT_STATE.connectedPlayerName === gameState.current_player) {
-                showTurn();
+                showTurn(gameState);
             }        
             break;
         case responses.PRE_DISPROVE:
@@ -324,10 +346,9 @@ socket.on('message', (data) => {
 
         case responses.DISPROVE_STATE:
             hideAll();
+            alertInBox("It is " + gameState.disproving_player + "'s turn to disprove the suggestion using eligible cards.");
             if (gameState.disproving_player === GLOBAL_CLIENT_STATE.connectedPlayerName){
-                
-                alertInBox("It is " + gameState.disproving_player + "'s turn to disprove the suggestion using eligible cards.");
-                disproveSelect = document.getElementById("disproveCards");
+                let disproveSelect = document.getElementById("disproveCards");
                 disproveSelect.innerHTML = "";
                 if (GLOBAL_CLIENT_STATE.connectedPlayerName in gameState.can_disprove) {
                     for (let i = 0; i < gameState.can_disprove[GLOBAL_CLIENT_STATE.connectedPlayerName].length; i++)
@@ -344,17 +365,29 @@ socket.on('message', (data) => {
             break;
         case responses.ACCUSE_STATE:
             hideAll();
-            //console.log(parsedMessage.payload);
             if (parsedMessage.payload === "disproveFailed") {
-                alertInBox("There are no players with any eligible cards to disprove the suggestion.");
+                alertInBox("There are no players with eligible cards to disprove the suggestion.");
             }
 
             if (GLOBAL_CLIENT_STATE.connectedPlayerName === gameState.current_player) {
-                alertInBox(parsedMessage.payload);
-                showAccuse();
+                if (parsedMessage.payload !== "disproveFailed") {
+                    alertInBox(parsedMessage.payload);
+                }
+                showTurnAccuse(gameState);
             }
             break;
-
+        case responses.ACCUSE_SUCCESS:
+            hideAll();
+            alertInBox(gameState.current_player + " accused " + gameState.accusation.suspect + " of the murder using " + gameState.accusation.weapon + " in room.");
+            alertInBox(gameState.current_player + " has the right accusation. Please restart the game.");
+            break;
+        case responses.ACCUSE_FAILURE:
+            hideAll();
+            alertInBox(gameState.current_player + " accused " + gameState.accusation.suspect + " of the murder using " + gameState.accusation.weapon + " in room.");
+            alertInBox("You have the wrong accusation.");
+            alertInBox(gameState.solution.suspect + " used " + gameState.solution.weapon + " in the murder.");
+            showButton("endTurnButton");
+            break;
         default:
             console.log(parsedMessage);
     }

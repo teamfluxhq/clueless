@@ -19,7 +19,11 @@ globalGameState = {
     "player_cards": dict(),
     "current_suggestion": dict(),
     "can_disprove": dict(),
-    "disproving_player": ""
+    "disproving_player": "",
+    "can_accuse": dict(),
+    "accusation": dict(),
+    "solution": dict(),
+    "game_ended": False
 }
 
 weapons = ["candlestick", "revolver",
@@ -96,7 +100,11 @@ def handle_message(data):
             "player_cards": dict(),
             "current_suggestion": dict(),
             "can_disprove": dict(),
-            "disproving_player": ""
+            "disproving_player": "",
+            "can_accuse": dict(),
+            "accusation": dict(),
+            "solution": dict(),
+            "game_ended": False
         }
         response = {
                 "responseToken": "CLEARED_GAME_STATE",
@@ -111,6 +119,10 @@ def handle_message(data):
         # print(solution)
         # assignCards()
         initialize_card_state()
+
+        for player in globalGameState["players"]:
+            globalGameState["can_accuse"][player] = True;
+
         print(globalGameState)
 
         globalGameState["current_player"] = globalGameState["players"][0]
@@ -123,6 +135,7 @@ def handle_message(data):
         emit('message', responseStr, broadcast=True)
         
     elif given_action["action"] == "END_TURN":
+        globalGameState["solution"] = dict()
         globalGameState["turn"] += 1
         globalGameState["current_player"] = globalGameState["players"][globalGameState["turn"] % len(globalGameState["players"])]
         response = {
@@ -134,17 +147,13 @@ def handle_message(data):
         emit('message', responseStr, broadcast=True)
     elif given_action["action"] == "SUGGEST":
         print("Player {} suggested the murder took place in {}, with {} using {}".format(globalGameState["current_player"], "CURRENT ROOM", given_action["suspect"], given_action["weapon"]))
+        globalGameState["current_suggestion"]["suspect"] = given_action["suspect"]
+        globalGameState["current_suggestion"]["weapon"] = given_action["weapon"]
 
-        #add guard in for catching weapon and suspect just in case
-        #also gather the player's current weapon
-        #print to all users that a suggestion has been made using a modal
         for player in globalGameState["players"]:
             if not (player == globalGameState["current_player"]):
                 if given_action["weapon"] in globalGameState["player_cards"][player]:
                     print("{} can disprove using {}".format(player, given_action["weapon"]))
-                    response = {"responseToken": "SUGGEST_STATE", "payload": "User " + globalGameState["current_player"], "gameState": globalGameState}  
-                    responseStr = json.dumps(response)
-                    emit('message', responseStr, broadcast=True)
                     if player not in globalGameState["can_disprove"]:
                         globalGameState["can_disprove"][player] = [given_action["weapon"]]
                     else:
@@ -155,13 +164,8 @@ def handle_message(data):
                         globalGameState["can_disprove"][player] = [given_action["suspect"]]
                     else:
                         globalGameState["can_disprove"][player].append(given_action["suspect"])
+                # Location
 
-                # if player not in globalGameState["can_disprove"]:
-                #     globalGameState[]
-            #or add in 3rd constraint for location)
-            #add in logic to print a modal pop up to the user who has a card that is being suggested
-        globalGameState["current_suggestion"]["suspect"] = given_action["suspect"]
-        globalGameState["current_suggestion"]["weapon"] = given_action["weapon"]
 
         next_player_index = (globalGameState["players"].index(globalGameState["current_player"]) + 1) % len(globalGameState["players"])
         globalGameState["disproving_player"] = globalGameState["players"][next_player_index]
@@ -205,8 +209,33 @@ def handle_message(data):
                 "gameState": globalGameState
             }
             responseStr = json.dumps(response)
-        emit('message', responseStr, broadcast=True)
+            emit('message', responseStr, broadcast=True)
+    elif given_action["action"] == "ACCUSE":
+        print('{} accused {} of the murder using {} in {}.'.format(globalGameState["current_player"],  given_action["suspect"], given_action["weapon"], "room"))
+        globalGameState["accusation"]["weapon"] = given_action["weapon"]
+        globalGameState["accusation"]["suspect"] = given_action["suspect"]
 
+        if (solution["weapon"] == given_action["weapon"] and solution["suspect"] == given_action["suspect"]):
+            # accuse correct, congrats
+                globalGameState["game_ended"] = True
+                response = {
+                    "responseToken": "ACCUSE_SUCCESS",
+                    "payload": "Accuse Success",
+                    "gameState": globalGameState
+                }
+                responseStr = json.dumps(response)
+                emit('message', responseStr, broadcast=True)
+        else:
+            globalGameState["can_accuse"][globalGameState["current_player"]] = False
+            globalGameState["game_ended"] = any(globalGameState["can_accuse"])
+            globalGameState["solution"] = solution
+            response = {
+                "responseToken": "ACCUSE_FAILURE",
+                "payload": "Accuse Failure",
+                "gameState": globalGameState
+            }
+            responseStr = json.dumps(response)
+            send(responseStr)
     else:
         response = {
             "responseToken": "UNIDENTIFIED_ACTION",
