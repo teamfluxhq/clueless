@@ -1,3 +1,9 @@
+// Global variable for movementData
+// Reason this is needed is to check if the current player is allowed to move
+let movementData = {
+    playerAllowedToMove: null
+}
+
 const validPositions = [
     [{x: 40, y: 40}, {x: 140, y: 40}, {x: 240, y: 40}, {x: 320, y: 40}, {x: 440, y: 40}],
     [{x: 40, y: 140}, {x: -1, y: -1}, {x: 240, y: 140}, {x: -1, y: -1}, {x: 440, y: 140}],
@@ -16,6 +22,15 @@ const roomMapping = {
     "conservatory": {indexX: 4, indexY: 0},
     "ballroom": {indexX: 4, indexY: 2},
     "kitchen": {indexX: 4, indexY: 4},
+}
+
+const startSpaces = {
+    "plum": {x: 112, y: 158},
+    "white": {x: 360, y: 384},
+    "peacock": {x: 114, y: 356},
+    "green": {x: 167, y: 384},
+    "scarlett": {x: 351, y: 107},
+    "mustard": {x: 411, y: 168},
 }
 
 let myGameBoard;
@@ -37,6 +52,11 @@ class GameBoard {
     clear() {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
+    static onCanvasClick(event) {
+        let x = event.offsetX;
+        let y = event.offsetY;
+        console.log("Clicked", " x:", x, " y:", y);
+    }
 }
 
 class Piece {
@@ -57,6 +77,12 @@ class Piece {
     newPos(incX, incY) {
         let x = this.indexX;
         let y = this.indexY;
+
+        // Handing the corner positions
+        // index 0,0 corresponds to the top left corner
+        // and saying y === -1 means that they're trying to 
+        // press the left arrow, this then navigates them
+        // to the opposite corner
         if (x == 0 && y == 0 && incY === -1) {
             this.x = validPositions[4][4].x;
             this.y = validPositions[4][4].y;
@@ -124,6 +150,7 @@ let drawPieces = (context) => {
 myGameBoard.draw(drawPieces);
 
 document.onkeydown = handleKeyDown;
+
 
 function moveIfValid(piece, incX, incY) {
     if (piece.indexX === 0 && piece.indexY === 0 && incY === -1) {

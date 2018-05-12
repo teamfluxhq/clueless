@@ -16,7 +16,8 @@ globalGameState = {
     "players": [],
     "turn": 0,
     "current_player": "",
-    "player_cards": dict()
+    "player_cards": dict(),
+    "player_locations": [],
 }
 
 weapons = ["candlestick", "revolver",
@@ -165,6 +166,12 @@ def handle_message(data):
 #     solution["suspect"] = sample(suspects, 1)
 
 # Randomly assign cards to players
+
+# Preconditions: game has already started
+# Postconditions: players are assigned colors, and starting locations
+def initialize_movement_state():
+    colors = list()
+    possible_colors = [""]
 
 def initialize_card_state():
     global solution
