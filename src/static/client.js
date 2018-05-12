@@ -166,6 +166,8 @@ socket.on('message', (data) => {
     let connectedPlayerName = GLOBAL_CLIENT_STATE.connectedPlayerName;
     statusDiv = document.getElementById("status");
     statusDiv.innerHTML = "In " + GLOBAL_CLIENT_STATE.connectedPlayerName + "'s client. Current turn number: " + gameState.turn + " Current player's turn: " + gameState.current_player;
+    
+    setCurrentCharacterTurn(gameState);
 
     switch (parsedMessage.responseToken) {
         case responses.PLAYER_JOINED_GAME:
@@ -210,7 +212,10 @@ socket.on('message', (data) => {
             location.reload();
             break;
         case responses.GAME_STARTED_STATE:
-            initBoardCanvas();
+            
+            console.log("Gamestate", gameState);
+            initGamePiecesAndBoard(gameState);
+
             startButton = document.getElementById('startGameButton');
             startButton.style.display = "none";
             // document.getElementById('resetGameButton').style.display = "none";
