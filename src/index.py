@@ -227,7 +227,10 @@ def handle_message(data):
                 emit('message', responseStr, broadcast=True)
         else:
             globalGameState["can_accuse"][globalGameState["current_player"]] = False
-            globalGameState["game_ended"] = any(globalGameState["can_accuse"])
+            print(globalGameState["can_accuse"])
+            globalGameState["game_ended"] = not any(globalGameState["can_accuse"].values())
+
+            print(globalGameState["game_ended"])
             globalGameState["solution"] = solution
             response = {
                 "responseToken": "ACCUSE_FAILURE",
