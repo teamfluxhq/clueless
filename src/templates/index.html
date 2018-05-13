@@ -6,13 +6,13 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>{{ title }}</title>
     <link href="https://fonts.googleapis.com/css?family=Dosis|Skranji" rel="stylesheet">
-    <link rel="stylesheet" href="//stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="//stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}" />
-    <script type="text/javascript" src="//stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
     
     <!-- Minified Socket IO library from content delivery network -->
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='socket.io.min.js') }}"></script>
 
 </head>
 <body>
@@ -54,6 +54,10 @@
                         <button id="submitAccusation" class="btn btn-success btn-sm" onclick="accuse()" style="display:none" >Submit Accusation</button>
                         <button id="resetGameButton" class="btn btn-success btn-sm" onclick="resetGame()"  style="display:block">Reset Game</button>
                     </div>
+                </div>
+                <div id="playerLocations" class="topbox-white">
+                    <label class="label"><i class="fa fa-user"></i> Player Locations</label>
+                    <div id="playerLocationsInner"></div>
                 </div>
             </div>
             <div class="sidebar">

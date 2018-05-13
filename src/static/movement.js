@@ -116,9 +116,24 @@ class Piece {
         this.context = context;
     }
     draw() {
-        this.context.fillStyle = this.color;
-        console.log(this.x, this.y);
-        this.context.fillRect(this.x, this.y, this.width, this.height);
+        // this.context.fillStyle = this.color;
+        // this.context.fillRect(this.x, this.y, this.width, this.height);
+        let colorToAsset = {
+            "violet": "/static/assets/pieces/purple.png",
+            "white": "/static/assets/pieces/white.png",
+            "blue": "/static/assets/pieces/blue.png",
+            "green": "/static/assets/pieces/green.png",
+            "red": "/static/assets/pieces/red.png",
+            "yellow": "/static/assets/pieces/yellow.png",
+        }
+        let pieceImage = new Image();
+        pieceImage.onload = () => {
+            this.context.drawImage(pieceImage, this.x, this.y, this.width, this.height);
+        }
+        pieceImage.src = colorToAsset[this.color];
+    }
+    getColor() {
+        return this.color;
     }
     getPosition() {
         let piecePositions = {
@@ -205,9 +220,35 @@ let initPiece = (character, color, locInfo, context) => {
     if(locInfo.hasOwnProperty(character)) {
         let x = locInfo[character].x;
         let y = locInfo[character].y;
-        myPieces[character] = new Piece(25, 25, color, x, y, context);
+        myPieces[character] = new Piece(35, 35, color, x, y, context);
         myPieces[character].draw();
     }
+}
+
+let updateRoomToShowAssociations = () => {
+    let room = document.getElementById("room");
+    room.innerHTML = "";
+    room.innerHTML += "<ul>";
+    let associations = myGameBoard.getAssociations();
+    for (var playerName in associations) {
+        let character = associations[playerName];
+        if (myPieces[character] !== null) {
+            let color = myPieces[character].getColor();
+            let you = "";
+            if (playerName === GLOBAL_CLIENT_STATE["connectedPlayerName"]) {
+                you += "(You)";
+            }
+            if (color !== "yellow" && color !== "white") {    
+                room.innerHTML += "<li style='color:"+color+";'><strong>"+playerName+"</strong>, "+character+you;
+            } else if (color === "yellow") {
+                room.innerHTML += "<li style='color:gold;'><strong>"+playerName+"</strong>, "+character+you;
+            } else if (color === "white") {
+                room.innerHTML += "<li style='color:#888;'><strong>"+playerName+"</strong>, "+character+you;
+            }
+            room.innerHTML += "</li>";
+        }
+    }
+    room.innerHTML += "</ul>";
 }
 
 // Given piece location info draw the pieces
@@ -218,6 +259,7 @@ let initPieces = (context, locInfo) => {
     initPiece("green", "green", locInfo, context);
     initPiece("scarlet", "red", locInfo, context);
     initPiece("mustard", "yellow", locInfo, context);
+    updateRoomToShowAssociations();
     return myPieces;
 }
 
@@ -318,6 +360,37 @@ function handleKeyDown(e) {
     }
 }
 
+function updateDomGivenRoomsOfPlayers(rooms, unassignedCharacterRooms) {
+    let playerLocationsDiv = document.getElementById("playerLocationsInner");
+    playerLocationsDiv.innerHTML ="";
+    for (var index in rooms) {
+        for (var key in rooms[index]) {
+            playerLocationsDiv.innerHTML += "<div class='location'><strong>"+ key + ": </strong>"+ rooms[index][key] + "</div>";
+        }
+    }
+    for (var index in unassignedCharacterRooms) {
+        for (var key in unassignedCharacterRooms[index]) {
+            playerLocationsDiv.innerHTML += "<div class='location'><strong>"+ key + ": </strong>"+ unassignedCharacterRooms[index][key] + "</div>";
+        }
+    }
+}
+
+function setRoomsOfPlayers(gameState) {
+    // global GLOBAL_CLIENT_STATE
+    let unassignedCharacterRooms = [];
+    if (gameState.hasOwnProperty("players")) {
+        let rooms = gameState.players.map((playerName) => ({[playerName]: getRoomOfPlayer(playerName)}));
+        GLOBAL_CLIENT_STATE["playerRoomLocations"] = rooms;
+        if (gameState.hasOwnProperty("movement_info")) {
+            if (gameState.movement_info.hasOwnProperty("unassigned_characters")) {
+                let unassigned_characters = gameState.movement_info.unassigned_characters;
+                unassignedCharacterRooms = unassigned_characters.map((character) => ({[character]: getRoomOfCharacter(character)}));
+            }
+        }
+        updateDomGivenRoomsOfPlayers(rooms, unassignedCharacterRooms);
+    }
+}
+
 
 // External Methods
 
@@ -327,6 +400,7 @@ function initGamePiecesAndBoard(gameState) {
             let locInfo = gameState.movement_info.current_locations;
             myGameBoard.draw((context) => initPieces(context, locInfo));
             setCurrentCharacterTurn(gameState);
+            setRoomsOfPlayers(gameState);
         }
     }
 }
@@ -346,16 +420,22 @@ function setCurrentCharacterTurn(gameState) {
     }
 }
 
+function getRoomOfCharacter(character) {
+    if (myPieces[character] !== null) {
+        let characterPosition = myPieces[character].getPosition();
+        let roomIndex = characterPosition.indexX + "," + characterPosition.indexY
+        if (roomMappingIndexFirst.hasOwnProperty(roomIndex)) {
+            return roomMappingIndexFirst[roomIndex];
+        }
+    }
+    return "hallway";
+}
+
 function getRoomOfPlayer(playerName) {
+
     let associations = myGameBoard.getAssociations();
     let character = associations[playerName];
-    let characterPosition = myPieces[character].getPosition();
-    let roomIndex = characterPosition.indexX + "," + characterPosition.indexY
-    if (roomMappingIndexFirst.hasOwnProperty(roomIndex)) {
-        return roomMappingIndexFirst[roomIndex];
-    } else {
-        return "not in room";
-    }
+    return getRoomOfCharacter(character);
 }
 
 function getPieceLocations() {
@@ -377,10 +457,10 @@ function updateGameBoard(gameState) {
         let newX = currentLocations[character].x;
         let newY = currentLocations[character].y;
         let indicies = getIndex(newX, newY);
-        console.log("Printing the character: ", character);
         myPieces[character].setDirectly(newX, newY);
         myPieces[character].setIndices(indicies.x, indicies.y);
         myGameBoard.clear();
         myGameBoard.draw(drawPieces);
     }
+    setRoomsOfPlayers(gameState);
 }
