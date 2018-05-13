@@ -1,1 +1,1 @@
-web: gunicorn --pythonpath src index:app -w 2 --threads 20
+web: gunicorn --pythonpath src index:app -w 1 --threads 15
