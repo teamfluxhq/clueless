@@ -152,6 +152,7 @@ def handle_message(data):
         print("Player {} suggested the murder took place in {}, with {} using {}".format(globalGameState["current_player"], "CURRENT ROOM", given_action["suspect"], given_action["weapon"]))
         globalGameState["current_suggestion"]["suspect"] = given_action["suspect"]
         globalGameState["current_suggestion"]["weapon"] = given_action["weapon"]
+        globalGameState["current_suggestion"]["room"] = given_action["room"]
         locations = given_action["locations"]
         suspect = given_action["suspect"]
         current_player = globalGameState["current_player"]
@@ -226,9 +227,13 @@ def handle_message(data):
             responseStr = json.dumps(response)
             emit('message', responseStr, broadcast=True)
     elif given_action["action"] == "ACCUSE":
-        print('{} accused {} of the murder using {} in {}.'.format(globalGameState["current_player"],  given_action["suspect"], given_action["weapon"], "room"))
+        print('{} accused {} of the murder using {} in {}.'.format(globalGameState["current_player"],
+                                                                   given_action["suspect"],
+                                                                   given_action["weapon"],
+                                                                   given_action["room"]))
         globalGameState["accusation"]["weapon"] = given_action["weapon"]
         globalGameState["accusation"]["suspect"] = given_action["suspect"]
+        globalGameState["accusation"]["room"] = given_action["room"]
 
         if (solution["weapon"] == given_action["weapon"] and solution["suspect"] == given_action["suspect"] and solution["room"] == given_action["room"]):
             # accuse correct, congrats

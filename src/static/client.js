@@ -342,7 +342,7 @@ socket.on('message', (data) => {
             break;
         case responses.PRE_DISPROVE:
             updateGameBoard(gameState);
-            alertInBox(gameState.current_player + " suggested that " + gameState.current_suggestion.suspect + " killed the victim using the " + gameState.current_suggestion.weapon + ".");
+            alertInBox(gameState.current_player + " suggested that " + gameState.current_suggestion.suspect + " killed the victim using the " + gameState.current_suggestion.weapon + " in " + gameState.current_suggestion.room);
 
         case responses.DISPROVE_STATE:
             hideAll();
@@ -378,14 +378,14 @@ socket.on('message', (data) => {
             break;
         case responses.ACCUSE_SUCCESS:
             hideAll();
-            alertInBox(gameState.current_player + " accused " + gameState.accusation.suspect + " of the murder using " + gameState.accusation.weapon + " in room.");
+            alertInBox(gameState.current_player + " accused " + gameState.accusation.suspect + " of the murder using " + gameState.accusation.weapon + " in the " + gameState.accusation.room);
             alertInBox(gameState.current_player + " has the right accusation. Please restart the game.");
             break;
         case responses.ACCUSE_FAILURE:
             hideAll();
-            alertInBox(gameState.current_player + " accused " + gameState.accusation.suspect + " of the murder using " + gameState.accusation.weapon + " in room.");
+            alertInBox(gameState.current_player + " accused " + gameState.accusation.suspect + " of the murder using " + gameState.accusation.weapon + " in the " + gameState.accusation.room);
             alertInBox("You have the wrong accusation.");
-            alertInBox(gameState.solution.suspect + " used " + gameState.solution.weapon + " in the murder.");
+            alertInBox(gameState.solution.suspect + " murdered the victim using " + gameState.solution.weapon + " in the " + gameState.solution.room);
             showButton("endTurnButton");
             break;
         default:
