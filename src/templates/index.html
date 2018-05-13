@@ -24,16 +24,15 @@
         <div class="mainview">
             <div class="leftview">
                 <div class="gameboard">
-                    <canvas id="gamecanvas" width="564" height="590"></canvas>
+                    <canvas id="gamecanvas" width="520" height="520"></canvas>
                 </div>
                 <div class="topbox">
                     <div class="actionbtns">
                         <button id="startGameButton" class="btn btn-success btn-sm" onclick="startGame()" style="display:none">Start Game</button>
                         <button id="suggestButton" class="btn btn-primary btn-sm" onclick="suggestPreparations()" style="display:none">Make Suggestion</button>
-                        <button id="disproveButton" class="btn btn-primary btn-sm" onclick="disprove()" style="display:none">Disprove</button>
-                        <button id="accuseButton" class="btn btn-primary btn-sm" onclick="accuse()" style="display:none">Make Accusation</button>
+                        <button id="accuseButton" class="btn btn-primary btn-sm" onclick="accusePreparations()" style="display:none">Make Accusation</button>
                         <button id="endTurnButton" class="btn btn-danger btn-sm" onclick="endTurn()" style="display:none">End Turn</button>
-                        <select id="suspectsList" style="display:none">
+                        <select id="weaponsList" style="display:none">
                             <option value="candlestick">Candlestick</option>
                             <option value="revolver">Revolver</option>
                             <option value="rope">Rope</option>
@@ -41,7 +40,7 @@
                             <option value="lead_pipe">Lead Pipe</option>
                             <option value="knife">Knife</option>
                         </select>
-                        <select id="weaponsList" style="display:none">
+                        <select id="suspectsList" style="display:none">
                             <option value="white">White</option>
                             <option value="peacock">Peacock</option>
                             <option value="scarlet">Scarlet</option>
@@ -49,7 +48,10 @@
                             <option value="green">Green</option>
                             <option value="plum">Plum</option>
                         </select>
+                        <select id="disproveCards" style="display:none"></select>
+                        <button id="disproveButton" class="btn btn-primary btn-sm" onclick="disprove()" style="display:none">Disprove</button>
                         <button id="submitSuggestion" class="btn btn-success btn-sm" onclick="suggest()" style="display:none" >Submit Suggestion</button>
+                        <button id="submitAccusation" class="btn btn-success btn-sm" onclick="accuse()" style="display:none" >Submit Accusation</button>
                         <button id="resetGameButton" class="btn btn-success btn-sm" onclick="resetGame()"  style="display:block">Reset Game</button>
                     </div>
                 </div>
@@ -73,10 +75,15 @@
                     <label class="label"><i class="fa fa-id-card"></i> Current Cards</label>
                     <div id="cards"></div>
                 </div>
+                <div class="sidebox">
+                    <label class="label"><i class="fa fa-id-card"></i> Alerts </label>
+                    <div id="alerts" style="overflow-y: auto; height:100px;"></div>
+                </div>
             </div>
         </div>        
     </div>
     <script type="text/javascript" src="{{ url_for('static', filename='client.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='movement.js') }}"></script>
 
     
 </body>
