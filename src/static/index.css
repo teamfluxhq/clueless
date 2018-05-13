@@ -92,8 +92,9 @@ body {
 .gameboard {
     display: flex;
     justify-content: center;
-    align-content: center;
-    align-items: center;
+    max-height: 550px;
+    align-content: flex-start;
+    align-items: flex-start;
     background: rgba(255,255,255,0.8);
     padding: 10px;
     flex: 10;

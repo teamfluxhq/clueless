@@ -6,6 +6,7 @@ from flask import Flask, render_template
 from flask_socketio import SocketIO, send, emit
 import json
 import random
+import movement
 app = Flask(__name__)
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
@@ -119,7 +120,8 @@ def handle_message(data):
         # print(solution)
         # assignCards()
         initialize_card_state()
-
+        globalGameState = movement.initialize_movement_state(globalGameState)
+        
         for player in globalGameState["players"]:
             globalGameState["can_accuse"][player] = True;
 
@@ -135,6 +137,7 @@ def handle_message(data):
         emit('message', responseStr, broadcast=True)
         
     elif given_action["action"] == "END_TURN":
+        globalGameState["movement_info"]["current_locations"] = given_action["payload"]["current_locations"]
         globalGameState["solution"] = dict()
         globalGameState["turn"] += 1
         globalGameState["current_player"] = globalGameState["players"][globalGameState["turn"] % len(globalGameState["players"])]
@@ -149,7 +152,14 @@ def handle_message(data):
         print("Player {} suggested the murder took place in {}, with {} using {}".format(globalGameState["current_player"], "CURRENT ROOM", given_action["suspect"], given_action["weapon"]))
         globalGameState["current_suggestion"]["suspect"] = given_action["suspect"]
         globalGameState["current_suggestion"]["weapon"] = given_action["weapon"]
+        locations = given_action["locations"]
+        suspect = given_action["suspect"]
+        current_player = globalGameState["current_player"]
+        current_player_character = globalGameState["movement_info"]["associations"][current_player]
+        locations[suspect] = locations[current_player_character]
+        globalGameState["movement_info"]["current_locations"] = locations
 
+        # Set the suspect's location to the 
         for player in globalGameState["players"]:
             if not (player == globalGameState["current_player"]):
                 if given_action["weapon"] in globalGameState["player_cards"][player]:
@@ -165,7 +175,12 @@ def handle_message(data):
                     else:
                         globalGameState["can_disprove"][player].append(given_action["suspect"])
                 # Location
-
+                if given_action["room"] in globalGameState["player_cards"][player]:
+                    print("{} can disprove using {}".format(player, given_action["room"]))
+                    if player not in globalGameState["can_disprove"]:
+                        globalGameState["can_disprove"][player] = [given_action["room"]]
+                    else:
+                        globalGameState["can_disprove"][player].append(given_action["room"])
 
         next_player_index = (globalGameState["players"].index(globalGameState["current_player"]) + 1) % len(globalGameState["players"])
         globalGameState["disproving_player"] = globalGameState["players"][next_player_index]
@@ -215,7 +230,7 @@ def handle_message(data):
         globalGameState["accusation"]["weapon"] = given_action["weapon"]
         globalGameState["accusation"]["suspect"] = given_action["suspect"]
 
-        if (solution["weapon"] == given_action["weapon"] and solution["suspect"] == given_action["suspect"]):
+        if (solution["weapon"] == given_action["weapon"] and solution["suspect"] == given_action["suspect"] and solution["room"] == given_action["room"]):
             # accuse correct, congrats
                 globalGameState["game_ended"] = True
                 response = {

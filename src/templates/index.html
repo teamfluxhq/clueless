@@ -24,7 +24,7 @@
         <div class="mainview">
             <div class="leftview">
                 <div class="gameboard">
-                    <canvas id="gamecanvas" width="564" height="590"></canvas>
+                    <canvas id="gamecanvas" width="520" height="520"></canvas>
                 </div>
                 <div class="topbox">
                     <div class="actionbtns">
@@ -77,12 +77,13 @@
                 </div>
                 <div class="sidebox">
                     <label class="label"><i class="fa fa-id-card"></i> Alerts </label>
-                    <div id="alerts" style="overflow-y: auto; height:200px;"></div>
+                    <div id="alerts" style="overflow-y: auto; height:100px;"></div>
                 </div>
             </div>
         </div>        
     </div>
     <script type="text/javascript" src="{{ url_for('static', filename='client.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='movement.js') }}"></script>
 
     
 </body>

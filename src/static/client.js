@@ -93,17 +93,6 @@ socket.on('connect', () => {
     socket.emit(actions.CLIENT_CONNECTION, {data: 'Client connected'});
 });
 
-function initBoardCanvas() {
-    let canvas = document.getElementById("gamecanvas");
-    let context = canvas.getContext("2d");
-    let imageObj = new Image();
-    imageObj.onload = () => {
-        context.drawImage(imageObj, 0, 0, imageObj.width, imageObj.height);
-    }
-    imageObj.src = "/static/assets/gameboard1.jpg";
-}
-initBoardCanvas();
-
 function checkIfExists(someVariable, someProperty) {
     if (typeof someVariable !== 'undefined' && someVariable.hasOwnProperty(someProperty)) {
         return true;
@@ -197,7 +186,9 @@ function suggest() {
     let sendObjToServer = {
         action: actions.SUGGEST,
         weapon: document.getElementById("weaponsList").value,
-        suspect: document.getElementById("suspectsList").value
+        suspect: document.getElementById("suspectsList").value,
+        room: getRoomOfPlayer(GLOBAL_CLIENT_STATE.connectedPlayerName),
+        locations: getPieceLocations()
     }
     hideAll();
     socket.send(JSON.stringify(sendObjToServer))
@@ -216,7 +207,8 @@ function accuse() {
     let sendObjToServer = {
         action: actions.ACCUSE,
         weapon: document.getElementById("weaponsList").value,
-        suspect: document.getElementById("suspectsList").value
+        suspect: document.getElementById("suspectsList").value,
+        room: getRoomOfPlayer(GLOBAL_CLIENT_STATE.connectedPlayerName)
     }
     hideAll();
     socket.send(JSON.stringify(sendObjToServer))
@@ -225,6 +217,9 @@ function accuse() {
 function endTurn() {
     let sendObjToServer = {
         action: actions.END_TURN,
+        payload: {
+            "current_locations": getPieceLocations(),
+        }
     }
     hideAll();
     socket.send(JSON.stringify(sendObjToServer))
@@ -265,6 +260,8 @@ socket.on('message', (data) => {
     let connectedPlayerName = GLOBAL_CLIENT_STATE.connectedPlayerName;
     statusDiv = document.getElementById("status");
     statusDiv.innerHTML = "In " + GLOBAL_CLIENT_STATE.connectedPlayerName + "'s client. Current turn number: " + gameState.turn + " Current player's turn: " + gameState.current_player;
+    
+    setCurrentCharacterTurn(gameState);
 
     switch (parsedMessage.responseToken) {
         case responses.PLAYER_JOINED_GAME:
@@ -308,7 +305,8 @@ socket.on('message', (data) => {
         case responses.GAME_STARTED_STATE:
             hideAll();
 
-            initBoardCanvas();
+            initGamePiecesAndBoard(gameState);
+
             if (GLOBAL_CLIENT_STATE.connectedPlayerName === gameState.current_player) {
                 showTurn(gameState);
             }
@@ -330,6 +328,7 @@ socket.on('message', (data) => {
             }
             break;
         case responses.SUGGEST_STATE:
+            updateGameBoard(gameState);
             hideAll();
             console.log("From the suggest state case: ", gameState);
 
@@ -342,6 +341,7 @@ socket.on('message', (data) => {
             }        
             break;
         case responses.PRE_DISPROVE:
+            updateGameBoard(gameState);
             alertInBox(gameState.current_player + " suggested that " + gameState.current_suggestion.suspect + " killed the victim using the " + gameState.current_suggestion.weapon + ".");
 
         case responses.DISPROVE_STATE:
